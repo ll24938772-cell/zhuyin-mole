@@ -1580,6 +1580,9 @@ $('muteBtn').onclick=()=>{ S.sound=!S.sound; $('muteBtn').setAttribute('aria-pre
 document.addEventListener('visibilitychange',()=>{ if(document.hidden&&S.view==='play'&&!S.paused){ S.paused=true; clearMoles(); stopSpeech(); render(); } });
 })();
 </script>
+
+<script>/* 新版服務工作者接管後自動重新載入一次，不用手動清快取 */
+if("serviceWorker" in navigator){ let r=false; navigator.serviceWorker.addEventListener("controllerchange",()=>{ if(r) return; r=true; location.reload(); }); }</script>
 </body>
 </html>
 

@@ -20,7 +20,7 @@ self.addEventListener('fetch',e=>{
     e.respondWith(caches.match(e.request,{ignoreSearch:true}).then(hit=>hit||fetch(e.request).then(res=>{
       if(res.ok){ const copy=res.clone(); caches.open(VOICE).then(c=>c.put(e.request,copy)); } return res; })));
   }else{                                                    // 遊戲：網路優先，失敗才用快取
-    e.respondWith(fetch(e.request).then(res=>{
+    e.respondWith(fetch(e.request,{cache:"no-cache"}).then(res=>{
       if(res.ok){ const copy=res.clone(); caches.open(CORE).then(c=>c.put(e.request,copy)); } return res;
     }).catch(()=>caches.match(e.request,{ignoreSearch:true}).then(hit=>hit||caches.match(GAME))));
   }
