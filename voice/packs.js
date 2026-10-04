@@ -1,0 +1,1 @@
+window.VOICE_PACKS=[{"id":"HsiaoChen","name":"曉臻","sub":"女聲・沉穩清楚","voice":"zh-TW-HsiaoChenNeural","count":1010,"index":"voice/HsiaoChen/index.js"}];

@@ -1,0 +1,5 @@
+voice_samples/
+voice_dry/
+*.bat
+Thumbs.db
+.DS_Store

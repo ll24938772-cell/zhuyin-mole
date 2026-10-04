@@ -1,0 +1,1556 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>注音打地鼠</title>
+<style>
+:root{
+  color-scheme: light;
+  --leaf:#2f5d3a; --leaf-2:#3d7249; --leaf-line:#56905f; --mint:#e6f6de;
+  --coral:#ff7b54; --coral-dk:#d4532c; --sun:#ffc947;
+  --ink:#1f3326; --ink-soft:#5a6e5f; --paper:#fffaf0; --paper-2:#f1e7d3; --line:#e4d6b8;
+  --good:#1f9a5a; --bad:#dc4449;
+  --grass:#7cc45a; --grass-dk:#5aa640; --soil:#4a2f1b; --lip:#9b6a3f; --fur:#a0714d; --fur-dk:#7d5436; --muzzle:#e2c09c;
+  --ri:#3d8fd6; --ri-bg:#e7f1fb;   /* 聲母 */
+  --rm:#2aa874; --rm-bg:#e3f6ee;   /* 介音 */
+  --rf:#ee8435; --rf-bg:#fdefe3;   /* 韻母 */
+  --rt:#9767cf; --rt-bg:#f2eafb;   /* 聲調 */
+  --font:"Huninn","Noto Sans TC","PingFang TC","Microsoft JhengHei","Heiti TC",sans-serif;
+}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{margin:0;background:linear-gradient(180deg,#bfe6fb 0%,#dff3d4 55%,#b5de98 100%) fixed;background-color:#dff3d4;color:var(--ink);font-family:var(--font);-webkit-tap-highlight-color:transparent}
+button{font-family:inherit;cursor:pointer;color:inherit}
+button:focus-visible{outline:3px solid var(--coral);outline-offset:2px}
+#app{height:100%;display:flex;flex-direction:column}
+
+/* ---------- 頂列 ---------- */
+.top{display:flex;align-items:center;gap:10px;padding:10px 16px;background:var(--leaf);color:#f2fbe9;border-bottom:4px solid #24492d}
+.tb{height:42px;min-width:42px;border-radius:12px;border:2px solid var(--leaf-line);background:var(--leaf-2);color:#f2fbe9;display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:0 10px;font-size:16px}
+.tb svg{width:22px;height:22px}
+.tb[aria-pressed="true"]{opacity:.55}
+.brandmini{font-size:20px;letter-spacing:.06em}
+.score{margin-left:auto;display:flex;align-items:baseline;gap:6px;font-size:14px;color:#cfe8c6}
+.score b{font-weight:400;font-size:24px;color:#fff;font-variant-numeric:tabular-nums}
+.rinfo{font-size:15px;color:#cfe8c6;font-variant-numeric:tabular-nums}
+.dexbtn b{font-weight:400;background:var(--sun);color:var(--ink);border-radius:999px;padding:0 8px;font-size:14px;font-variant-numeric:tabular-nums}
+
+main{flex:1;overflow:auto;padding:16px}
+.view{max-width:1040px;margin:0 auto}
+.panel{background:var(--paper);border-radius:22px;box-shadow:0 5px 0 #d3c39f,0 14px 34px rgba(40,70,30,.18);padding:22px 26px}
+
+/* ---------- 首頁 ---------- */
+#vHome{max-width:860px}
+.brand{display:flex;align-items:flex-end;gap:18px;flex-wrap:wrap}
+h1{margin:0;font-weight:400;font-size:46px;line-height:1;display:flex;gap:.3em;color:var(--ink)}
+.zc{display:inline-flex;align-items:center}
+.zc .zy{position:relative;display:flex;flex-direction:column;font-size:.3em;line-height:1.02;margin-left:.12em;color:var(--coral-dk)}
+.zc .tn{position:absolute;right:-.62em;top:.35em}
+.tagline{margin:0;font-size:17px;color:var(--ink-soft)}
+.how{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:18px 0 4px;padding:0;list-style:none;counter-reset:s}
+.how li{counter-increment:s;background:#fff;border:2px solid var(--line);border-radius:14px;padding:10px 12px;font-size:14px;line-height:1.5;color:var(--ink-soft)}
+.how li::before{content:counter(s);display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--leaf);color:#fff;font-size:13px;margin-right:6px}
+.how b{font-weight:400;color:var(--ink)}
+.sec{margin-top:18px}
+.sec h2{margin:0 0 8px;font-size:15px;font-weight:400;letter-spacing:.14em;color:var(--ink-soft)}
+.chips{display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.chip{border:2px solid var(--line);background:#fff;border-radius:14px;padding:8px 12px;text-align:left;display:flex;flex-direction:column;gap:2px}
+.chip .n{font-size:19px}
+.chip .s{font-size:12.5px;color:var(--ink-soft);line-height:1.4}
+.chip[aria-pressed="true"]{border-color:var(--leaf);background:var(--leaf);color:#fff}
+.chip[aria-pressed="true"] .s{color:#d3ecc9}
+.chip:disabled{opacity:.6;cursor:not-allowed;background:#f4efe4}
+.lockmsg{margin:0 0 12px;padding:10px 14px;border-radius:14px;background:#2f2a4a;color:#f3e6ff;font-size:15px;line-height:1.6}
+.lockmsg.open{background:linear-gradient(90deg,#5a3aa8,#b8862a);color:#fff}
+.tab.mythtab{border-color:#c9a64a}
+.review{background:#ffe08a!important;color:#6a4200!important}
+.ov-badge.gold{background:linear-gradient(90deg,#ffe08a,#ffc947);color:#5a3a00}
+.go{margin-top:22px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.start{border:none;background:var(--coral);color:#fff;font-size:22px;padding:12px 30px;border-radius:18px;box-shadow:0 5px 0 var(--coral-dk)}
+.start:active{transform:translateY(3px);box-shadow:0 2px 0 var(--coral-dk)}
+.ghost{border:2px solid var(--line);background:#fff;font-size:17px;padding:10px 20px;border-radius:16px}
+.prog{display:grid;gap:8px;margin-top:16px}
+.prow{display:grid;grid-template-columns:7.5em 1fr 4em;align-items:center;gap:10px;font-size:14px;color:var(--ink-soft)}
+.bar{height:10px;border-radius:5px;background:var(--paper-2);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--good);border-radius:5px}
+.prow .c{text-align:right;font-variant-numeric:tabular-nums;color:var(--ink)}
+.note{margin-top:12px;font-size:13px;color:var(--bad)}
+
+/* ---------- 遊戲 ---------- */
+.play{display:grid;gap:16px;grid-template-columns:minmax(0,1fr)}
+@media (min-width:900px){ .play{grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);align-items:start} }
+.hear{display:flex;align-items:center;gap:14px}
+.artbox{flex:none;width:96px;height:96px;border-radius:18px;background:#fff;border:2px solid var(--line);display:grid;place-items:center;overflow:hidden}
+.art{width:84%;height:84%;display:grid;place-items:center;transition:filter .7s ease}
+.art svg{width:100%;height:100%}
+.art .emo{font-size:62px;line-height:1}
+.sil{filter:brightness(0) opacity(.22)}
+.hearbtns{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.catline{width:100%;font-size:13px;color:var(--ink-soft);letter-spacing:.08em}
+.speak{border:none;background:var(--coral);color:#fff;border-radius:16px;padding:9px 16px 9px 10px;font-size:18px;display:inline-flex;align-items:center;gap:6px;box-shadow:0 4px 0 var(--coral-dk)}
+.speak svg{width:26px;height:26px}
+.speak:active{transform:translateY(2px);box-shadow:0 2px 0 var(--coral-dk)}
+.speak.talking{animation:talk .6s ease-in-out infinite}
+@keyframes talk{50%{box-shadow:0 4px 0 var(--coral-dk),0 0 0 8px rgba(255,123,84,.25)}}
+.soft{border:2px solid var(--line);background:#fff;border-radius:14px;padding:8px 14px;font-size:16px}
+.soft:active{transform:translateY(1px)}
+.soft.on{border-color:var(--rt);background:var(--rt-bg)}
+
+.word{--slot:48px;--tslot:28px;--ch:54px;display:flex;justify-content:center;flex-wrap:wrap;gap:12px 16px;padding:14px 4px 8px}
+.cb{display:flex;align-items:center;gap:6px;padding:8px 10px;border-radius:18px;border:3px solid transparent;transition:opacity .3s}
+.cb.active{border-color:var(--sun);background:rgba(255,201,71,.16)}
+.cb.future{opacity:.42}
+.han{font-size:var(--ch);line-height:1}
+.zcol{display:grid;grid-template-columns:var(--slot) var(--tslot);grid-auto-rows:var(--slot);row-gap:4px;column-gap:2px}
+.slot{grid-column:1;width:var(--slot);height:var(--slot);box-sizing:border-box;border-radius:11px;border:2.5px dashed var(--rc);background:var(--rbg);display:grid;place-items:center;font-size:calc(var(--slot)*.6);line-height:1;color:var(--ink)}
+.slot.ok{border-style:solid;border-color:var(--good);background:#fff;color:var(--good);animation:pop .35s}
+.cb.done .slot{border-color:transparent;background:transparent;color:var(--good);animation:none}
+.tslot{grid-column:2;align-self:start;width:var(--tslot);height:var(--tslot);box-sizing:border-box;border-radius:8px;border:2px dashed var(--rt);background:var(--rt-bg);display:grid;place-items:center;font-size:calc(var(--tslot)*.95);line-height:1}
+.tslot.want,.slot.want{animation:want 1.1s ease-in-out infinite}
+.slot.want{border-style:solid;border-width:3.5px}
+@keyframes want{50%{box-shadow:0 0 0 5px rgba(151,103,207,.3)}}
+.cb.done .tslot{border-color:transparent;background:transparent;color:var(--good)}
+.r-i{--rc:var(--ri);--rbg:var(--ri-bg)} .r-m{--rc:var(--rm);--rbg:var(--rm-bg)} .r-f{--rc:var(--rf);--rbg:var(--rf-bg)} .r-t{--rc:var(--rt);--rbg:var(--rt-bg)}
+.plain .r-i,.plain .r-m,.plain .r-f{--rc:#bba98a;--rbg:#fff}
+.plain .tslot{border-color:#bba98a;background:#fff}
+.step{font-size:17px;text-align:center}
+.step b{font-weight:400;color:var(--coral-dk)}
+.tip{margin-top:10px;background:#fff6d8;border:2px solid #f0d27a;border-radius:14px;padding:8px 12px;font-size:14px;line-height:1.55;color:#6b5314}
+.tools{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:10px}
+.four{margin-top:10px;background:var(--rt-bg);border:2px solid #d9c6f1;border-radius:16px;padding:10px 12px;display:flex;flex-direction:column;gap:8px;align-items:center}
+.four .fl{font-size:13px;color:#5f3f8f;text-align:center}
+.frow{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.fbtn{min-width:70px;border:2px solid #cdb6ec;background:#fff;border-radius:12px;padding:6px 10px;display:flex;flex-direction:column;align-items:center;gap:2px}
+.fbtn .mk{font-size:24px;line-height:1;height:24px}
+.fbtn .lb{font-size:13px;color:var(--ink-soft)}
+.fbtn[disabled]{opacity:.4;cursor:default}
+.fbtn.lit{border-color:var(--rt);background:var(--rt);color:#fff}
+.fbtn.lit .lb{color:#fff}
+
+/* ---------- 地鼠田 ---------- */
+.fieldwrap{display:flex;flex-direction:column;gap:10px}
+.fieldbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.phase{font-size:17px;background:var(--paper);border-radius:999px;padding:6px 14px;box-shadow:0 3px 0 #d3c39f}
+.phase b{font-weight:400;color:var(--coral-dk)}
+.combo{font-size:15px;color:var(--leaf);font-variant-numeric:tabular-nums}
+.field{position:relative;display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:14px;border-radius:24px;
+  background:radial-gradient(circle at 20% 15%,rgba(255,255,255,.25) 0 8%,transparent 9%),radial-gradient(circle at 80% 70%,rgba(255,255,255,.18) 0 6%,transparent 7%),linear-gradient(180deg,var(--grass),var(--grass-dk));
+  box-shadow:inset 0 -6px 0 rgba(0,0,0,.12),0 6px 0 #3f7f2c;touch-action:manipulation;user-select:none;-webkit-user-select:none}
+.field.paused .hole{opacity:.45}
+.pausemsg{position:absolute;inset:0;display:grid;place-items:center;font-size:26px;color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.3);pointer-events:none}
+.hole{position:relative;aspect-ratio:1;border:none;background:transparent;padding:0;border-radius:18px;overflow:visible}
+.hole .pit{position:absolute;left:6%;right:6%;bottom:6%;height:30%;border-radius:50%;background:radial-gradient(ellipse at 50% 40%,#2e1c0f 0 55%,var(--soil) 70%)}
+.hole .well{position:absolute;left:0;right:0;top:-8%;bottom:21%;overflow:hidden;border-radius:0 0 40% 40%/0 0 22% 22%}
+.mole{position:absolute;left:15%;right:15%;bottom:-2%;height:88%;border-radius:48% 48% 30% 30%/58% 58% 30% 30%;background:linear-gradient(180deg,var(--fur),var(--fur-dk));transform:translateY(105%);transition:transform .16s ease-out}
+.hole.up .mole,.hole.hit .mole,.hole.miss .mole{transform:translateY(0)}
+.hole.gone .mole{transform:translateY(105%);transition:transform .22s ease-in}
+.mole .eyes{position:absolute;top:13%;left:0;right:0;display:flex;justify-content:center;gap:24%}
+.mole .eyes i{width:9%;aspect-ratio:1;border-radius:50%;background:#1d130c;display:block;min-width:6px}
+.mole .nose{position:absolute;top:21%;left:50%;width:13%;aspect-ratio:1.3;transform:translateX(-50%);border-radius:50%;background:#f08aa0}
+.mole .sign{position:absolute;left:8%;right:8%;top:32%;bottom:14%;border-radius:14px;background:#fff;border:3px solid var(--rc,#bba98a);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:clamp(24px,7vw,42px);line-height:1;color:var(--ink);box-shadow:0 3px 0 rgba(0,0,0,.18)}
+.plain .mole .sign{border-color:#bba98a}
+.mole .sign small{font-size:13px;color:var(--ink-soft);margin-top:2px}
+.mole .dizzy{position:absolute;top:-2%;left:0;right:0;text-align:center;color:#ffe066;font-size:18px;opacity:0}
+.hole.hit .dizzy{opacity:1;animation:spin .45s linear}
+@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+.hole.hit .mole .eyes i{background:transparent;position:relative}
+.hole.hit .mole .eyes i::before,.hole.hit .mole .eyes i::after{content:"";position:absolute;left:-20%;right:-20%;top:40%;height:22%;background:#1d130c;transform:rotate(45deg)}
+.hole.hit .mole .eyes i::after{transform:rotate(-45deg)}
+.hole.hit .sign{border-color:var(--good);color:var(--good)}
+.hole.miss .mole{animation:tease .5s ease-in-out}
+@keyframes tease{25%{transform:translateY(0) rotate(-6deg)}75%{transform:translateY(0) rotate(6deg)}}
+.hole.miss .sign{border-color:var(--bad);color:var(--bad)}
+.hole .lip{position:absolute;left:3%;right:3%;bottom:4%;height:18%;border-radius:0 0 50% 50%/0 0 100% 100%;background:linear-gradient(180deg,var(--lip),#7a5230)}
+.bubble{position:absolute;top:-4%;right:-4%;background:#fff;border-radius:12px;padding:3px 8px;font-size:14px;color:var(--bad);box-shadow:0 2px 0 rgba(0,0,0,.15);opacity:0;transform:scale(.6);transition:all .15s;pointer-events:none;z-index:2}
+.hole.miss .bubble{opacity:1;transform:scale(1)}
+.hole.glow .sign{box-shadow:0 0 0 5px rgba(255,201,71,.95);animation:glow 1s ease-in-out infinite}
+@keyframes glow{50%{box-shadow:0 0 0 9px rgba(255,201,71,.5)}}
+.fx{position:absolute;pointer-events:none;font-size:22px;color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.35);animation:rise .8s ease-out forwards;z-index:3;white-space:nowrap}
+@keyframes rise{from{transform:translate(-50%,0);opacity:1}to{transform:translate(-50%,-46px);opacity:0}}
+.hammer{position:absolute;width:74px;height:74px;margin:-66px 0 0 -14px;pointer-events:none;opacity:0;transform-origin:18% 88%;z-index:4}
+.hammer.swing{animation:swing .3s ease-out}
+@keyframes swing{0%{opacity:1;transform:rotate(-55deg)}45%{opacity:1;transform:rotate(12deg)}100%{opacity:0;transform:rotate(8deg)}}
+.legend{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;font-size:13px;color:var(--ink-soft)}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.legend i{width:14px;height:14px;border-radius:4px;background:var(--rc);display:inline-block}
+
+/* ---------- 圖鑑 ---------- */
+.dexhead{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.dexhead h2{margin:0;font-size:28px;font-weight:400}
+.dexhead span{color:var(--ink-soft);font-size:15px}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.tab{border:2px solid var(--line);background:#fff;border-radius:999px;padding:6px 14px;font-size:16px}
+.tab[aria-selected="true"]{background:var(--leaf);border-color:var(--leaf);color:#fff}
+.tab small{font-size:12px;opacity:.8;margin-left:4px;font-variant-numeric:tabular-nums}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.card{background:#fff;border:2px solid var(--line);border-radius:18px;padding:12px;text-align:left;display:flex;flex-direction:column;gap:6px}
+.card .artbox{width:100%;height:auto;aspect-ratio:1;max-width:100%;border:none;background:var(--paper)}
+.card .art .emo{font-size:64px}
+.card .nm{font-size:20px}
+.card .zz{font-size:14px;color:var(--ink-soft);letter-spacing:.05em}
+.card .ft{font-size:12.5px;line-height:1.5;color:var(--ink-soft)}
+.card.lock .nm{color:#b3a48a}
+.stars{display:inline-flex;gap:2px}
+.stars svg{width:18px;height:18px}
+.clearrow{margin-top:18px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:14px;color:var(--ink-soft)}
+.danger{border:2px solid #f2b8ba;background:#fff;color:var(--bad);border-radius:12px;padding:6px 12px;font-size:14px}
+
+/* ---------- 疊層 ---------- */
+.overlay .panel.bak{text-align:left}
+.bak .ov-title{text-align:center}
+.bak h3{margin:16px 0 6px;font-size:17px;font-weight:400}
+.bak-tip,.bak-note,.bak-sum{margin:6px 0;font-size:14px;line-height:1.6;color:var(--ink-soft)}
+.bak textarea{width:100%;box-sizing:border-box;border:2px solid var(--line);border-radius:12px;padding:8px 10px;font:13px/1.4 ui-monospace,Menlo,Consolas,monospace;background:#fff;color:var(--ink);resize:vertical;word-break:break-all}
+.overlay .bak .go{margin-top:10px;justify-content:center}
+.bak-msg{min-height:1.4em;margin:10px 0 0;font-size:15px;color:var(--good)}
+.bak-msg.err{color:var(--bad)}
+.overlay{position:fixed;inset:0;z-index:10;display:grid;place-items:center;padding:16px;background:rgba(20,40,20,.55)}
+.overlay .panel{width:100%;max-width:560px;max-height:100%;overflow:auto;box-sizing:border-box;text-align:center}
+.bigart{width:170px;height:170px;margin:4px auto 0;border-radius:24px;background:#fff;display:grid;place-items:center}
+.bigart .art .emo{font-size:110px}
+.pop{animation:pop .6s cubic-bezier(.2,1.6,.4,1)}
+@keyframes pop{0%{transform:scale(.4)}100%{transform:scale(1)}}
+.ov-title{margin:0;font-size:28px;font-weight:400}
+.ov-word{font-size:30px;margin-top:8px}
+.ov-zy{font-size:17px;color:var(--ink-soft);letter-spacing:.06em}
+.ov-fact{margin:10px auto 0;max-width:30em;font-size:15px;line-height:1.6;color:var(--ink-soft)}
+.ov-stars{display:flex;justify-content:center;gap:6px;margin-top:8px}
+.ov-stars svg{width:40px;height:40px}
+.ov-badge{display:inline-block;margin-top:10px;padding:4px 12px;border-radius:999px;background:#e3f6ee;color:var(--good);font-size:14px}
+.overlay .go{justify-content:center}
+.sumscore{font-size:16px;color:var(--ink-soft);margin-top:4px}
+.sumscore b{font-weight:400;font-size:28px;color:var(--coral-dk);font-variant-numeric:tabular-nums}
+.sumlist{display:flex;flex-direction:column;gap:6px;margin-top:12px;text-align:left}
+.srow{display:flex;align-items:center;gap:10px;background:#fff;border:2px solid var(--line);border-radius:14px;padding:6px 10px}
+.srow .artbox{width:44px;height:44px;border:none;background:var(--paper);border-radius:10px}
+.srow .art .emo{font-size:30px}
+.srow .nm{font-size:18px;flex:1}
+.srow .new{font-size:12px;color:#fff;background:var(--coral);border-radius:999px;padding:1px 8px}
+.ana{margin-top:16px;text-align:left}
+.ana h3{margin:0 0 8px;font-size:15px;font-weight:400;letter-spacing:.12em;color:var(--ink-soft)}
+.arow{display:grid;grid-template-columns:4em 1fr 2em;gap:8px;align-items:center;font-size:14px;margin-bottom:6px}
+.arow .bar i{background:var(--rc)}
+.arow .n{text-align:right;font-variant-numeric:tabular-nums}
+.confs{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.confs span{background:#fff;border:2px solid var(--line);border-radius:10px;padding:2px 8px;font-size:14px}
+.advice{margin-top:10px;background:#fff6d8;border-radius:12px;padding:8px 12px;font-size:14px;line-height:1.6;color:#6b5314}
+
+@media (max-width:760px){ .how{grid-template-columns:repeat(2,1fr)} }
+@media (max-width:560px){
+  main{padding:12px 16px}
+  .panel{padding:16px}
+  h1{font-size:36px}
+  .brandmini,.rinfo{display:none}
+  .word{--slot:38px;--tslot:22px;--ch:38px;gap:8px 6px;padding:10px 0 4px}
+  .cb{padding:5px 4px;gap:3px}
+  .hear .artbox{width:68px;height:68px}
+  .hear .art .emo{font-size:44px}
+  .speak{font-size:16px}
+  .soft{font-size:15px;padding:7px 11px}
+  .field{gap:6px;padding:10px}
+  .grid{grid-template-columns:repeat(2,1fr)}
+}
+@media (prefers-reduced-motion:reduce){
+  .speak.talking,.tslot.want,.slot.want,.pop,.hole.glow .sign,.hole.miss .mole,.hole.hit .dizzy,.slot.ok{animation:none}
+}
+</style>
+</head>
+<body>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Huninn&display=swap">
+
+
+<div id="app">
+  <header class="top">
+    <button class="tb" id="homeBtn" aria-label="回首頁">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/></svg>
+    </button>
+    <span class="brandmini">注音打地鼠</span>
+    <span class="score" id="scoreBox" hidden>分數 <b id="score">0</b></span>
+    <span class="rinfo" id="roundInfo"></span>
+    <button class="tb dexbtn" id="dexBtn">圖鑑 <b id="dexCount">0</b></button>
+    <button class="tb" id="muteBtn" aria-label="音效開關" aria-pressed="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18V6l10-2v12"/><circle cx="6.5" cy="18" r="2.5" fill="currentColor"/><circle cx="16.5" cy="16" r="2.5" fill="currentColor"/></svg>
+    </button>
+  </header>
+
+  <main id="main">
+    <!-- 首頁 -->
+    <section class="view" id="vHome">
+      <div class="panel">
+        <div class="brand">
+          <h1 aria-label="注音打地鼠">
+            <span class="zc"><span>注</span><span class="zy"><span>ㄓ</span><span>ㄨ</span><span class="tn">ˋ</span></span></span>
+            <span class="zc"><span>音</span><span class="zy"><span>ㄧ</span><span>ㄣ</span></span></span>
+            <span class="zc"><span>打</span><span class="zy"><span>ㄉ</span><span>ㄚ</span><span class="tn">ˇ</span></span></span>
+            <span class="zc"><span>地</span><span class="zy"><span>ㄉ</span><span>ㄧ</span><span class="tn">ˋ</span></span></span>
+            <span class="zc"><span>鼠</span><span class="zy"><span>ㄕ</span><span>ㄨ</span><span class="tn">ˇ</span></span></span>
+          </h1>
+          <p class="tagline">聽名字，打中舉著正確注音的地鼠，打完就收進圖鑑！</p>
+        </div>
+        <ol class="how">
+          <li><b>聽</b>：按喇叭聽名字，一次處理一個字。</li>
+          <li><b>打注音</b>：地鼠舉著注音牌子，照順序打：先打聲母，再打介音、韻母。</li>
+          <li><b>打聲調</b>：注音打完，換地鼠舉聲調牌，不確定就按「四聲比對」。</li>
+          <li><b>收集</b>：整個名字打完，就收進圖鑑，有昆蟲、海洋生物、遠古海洋與陸地生物、恐龍和九大行星與太空；每一種都拿到三顆星，神獸就會出現。</li>
+        </ol>
+
+        <div class="sec"><h2>圖鑑主題</h2><div class="chips" id="themeChips" role="group" aria-label="圖鑑主題"></div></div>
+        <div class="sec"><h2>難度</h2><div class="chips" id="diffChips" role="group" aria-label="難度"></div></div>
+        <div class="sec"><h2>念名字的速度（點一下可以試聽）</h2><div class="chips" id="rateChips" role="group" aria-label="念名字的速度"></div></div>
+        <div class="sec"><h2>語音包（真人語音，點一下可以試聽）</h2><div class="chips" id="packChips" role="group" aria-label="語音包"><span class="note">正在找語音包…</span></div></div>
+        <div class="sec"><h2>瀏覽器語音（語音包沒有的句子才會用到）</h2><div class="chips" id="voiceChips" role="group" aria-label="語音"></div><div class="note" id="voiceStatus">正在找語音…</div></div>
+        <div class="sec"><h2>重複聽</h2><div class="chips" id="repeatChips" role="group" aria-label="重複聽"></div></div>
+
+        <div class="go">
+          <button class="start" id="startBtn">開始打地鼠（一輪 5 隻生物）</button>
+          <button class="ghost" id="openDexBtn">打開圖鑑</button>
+          <button class="ghost" id="bakBtn">備份／搬移進度</button>
+        </div>
+        <div class="prog" id="homeProg"></div>
+        <div class="note" id="voiceNote" hidden>這台裝置找不到中文語音，聽不到發音時請大人幫忙念。</div>
+      </div>
+    </section>
+
+    <!-- 遊戲 -->
+    <section class="view" id="vPlay" hidden>
+      <div class="play">
+        <div class="panel">
+          <div class="hear">
+            <div class="artbox" id="pArtBox"></div>
+            <div class="hearbtns">
+              <span class="catline" id="pCat"></span>
+              <button class="speak" id="replay">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor"/><path d="M15.5 9a4 4 0 0 1 0 6"/><path d="M18 6.5a7.5 7.5 0 0 1 0 11"/></svg>
+                <span>再聽一次</span>
+              </button>
+              <button class="soft" id="charsBtn">一字一字念</button>
+            </div>
+          </div>
+          <div class="word" id="wordRow"></div>
+          <div class="step" id="stepMsg"></div>
+          <div class="tip" id="sandhiTip" hidden></div>
+          <div class="tools">
+            <button class="soft" id="sayCharBtn">念這個字</button>
+            <button class="soft" id="fourBtn">四聲比對</button>
+            <button class="soft" id="hintBtn">提示</button>
+            <button class="soft" id="pauseBtn">暫停</button>
+          </div>
+          <div class="four" id="fourPanel" hidden></div>
+        </div>
+        <div class="fieldwrap">
+          <div class="fieldbar"><span class="phase" id="phaseMsg"></span><span class="combo" id="comboMsg"></span></div>
+          <div class="field" id="field">
+            <svg class="hammer" id="hammer" viewBox="0 0 80 80" aria-hidden="true"><rect x="12" y="30" width="10" height="46" rx="4" fill="#b07a45" transform="rotate(-10 17 53)"/><rect x="2" y="8" width="44" height="26" rx="8" fill="#e8574b"/><rect x="2" y="8" width="10" height="26" rx="4" fill="#f7d36b"/><rect x="36" y="8" width="10" height="26" rx="4" fill="#f7d36b"/></svg>
+            <div class="pausemsg" id="pauseMsg" hidden>暫停中，按「繼續」再開始</div>
+          </div>
+          <div class="legend" id="legend">
+            <span class="r-i"><i></i>聲母</span><span class="r-m"><i></i>介音</span><span class="r-f"><i></i>韻母</span><span class="r-t"><i></i>聲調</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 圖鑑 -->
+    <section class="view" id="vDex" hidden>
+      <div class="panel">
+        <div class="dexhead"><h2>我的圖鑑</h2><span id="dexTotal"></span></div>
+        <div class="tabs" id="dexTabs" role="tablist"></div>
+        <div class="lockmsg" id="dexMsg" hidden></div>
+        <div class="grid" id="dexGrid"></div>
+      </div>
+    </section>
+  </main>
+
+  <section class="overlay" id="doneOv" hidden>
+    <div class="panel">
+      <p class="ov-title" id="dTitle">打完了！</p>
+      <div class="bigart pop" id="dArt"></div>
+      <div class="ov-word" id="dWord"></div>
+      <div class="ov-zy" id="dZy"></div>
+      <div id="dStars"></div>
+      <div class="ov-badge" id="dBadge"></div>
+      <p class="ov-fact" id="dFact"></p>
+      <div class="go"><button class="start" id="nextBtn">下一隻</button></div>
+    </div>
+  </section>
+
+  <section class="overlay" id="bakOv" hidden>
+    <div class="panel bak" role="dialog" aria-labelledby="bakTitle">
+      <p class="ov-title" id="bakTitle">備份／搬移進度</p>
+      <p class="bak-tip">要換手機、平板或瀏覽器時：先在<b>舊的裝置</b>按「複製進度碼」，把這串文字傳到新裝置（例如用 LINE 傳給自己），再到<b>新的裝置</b>貼進下面的框框，按「匯入」。</p>
+      <h3>① 這台裝置的進度碼</h3>
+      <p class="bak-sum" id="bakSum"></p>
+      <textarea id="bakOut" readonly rows="3" aria-label="這台裝置的進度碼"></textarea>
+      <div class="go"><button class="start" id="bakCopy">複製進度碼</button></div>
+      <h3>② 匯入別台裝置的進度</h3>
+      <textarea id="bakIn" rows="3" placeholder="把進度碼貼在這裡" aria-label="貼上進度碼"></textarea>
+      <p class="bak-note">匯入時會合併：兩邊比較，每一種都留下星星比較多的，不會把這台已經收集的弄不見。</p>
+      <div class="go"><button class="start" id="bakImport">匯入</button><button class="ghost" id="bakClose">關閉</button></div>
+      <p class="bak-msg" id="bakMsg" role="status"></p>
+    </div>
+  </section>
+
+  <section class="overlay" id="sumOv" hidden>
+    <div class="panel">
+      <p class="ov-title">這一輪完成了！</p>
+      <div class="sumscore">分數 <b id="sScore">0</b></div>
+      <div class="sumlist" id="sList"></div>
+      <div class="ana" id="sAna"></div>
+      <div class="go">
+        <button class="start" id="againBtn">再玩一輪</button>
+        <button class="ghost" id="sumDexBtn">看圖鑑</button>
+        <button class="ghost" id="sumHomeBtn">回首頁</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+(() => {
+'use strict';
+const $ = id => document.getElementById(id);
+
+/* ================= 生物資料 ================= */
+// 注音＋聲調依臺灣教育部字典音；最後一欄是會變調的字位置（兩個三聲相連，前字念得像二聲）
+const CATS = [{k:'insect',n:'昆蟲'},{k:'sea',n:'海洋生物'},{k:'ancient',n:'遠古海洋生物'},{k:'land',n:'遠古陸地生物'},{k:'dino',n:'恐龍'},{k:'planet',n:'九大行星與太空'},{k:'myth',n:'神獸'}];
+const RAW = [
+  ['蝴蝶','insect','ㄏㄨ2 ㄉㄧㄝ2','e:🦋','用長長的口器吸花蜜，翅膀上有細細的鱗片。'],
+  ['蜜蜂','insect','ㄇㄧ4 ㄈㄥ1','e:🐝','會跳「搖擺舞」告訴同伴花在哪裡。'],
+  ['螞蟻','insect','ㄇㄚ3 ㄧ3','e:🐜','可以搬動比自己重很多倍的東西。',0],
+  ['瓢蟲','insect','ㄆㄧㄠ2 ㄔㄨㄥ2','e:🐞','很多瓢蟲會吃蚜蟲，是種菜的好幫手。'],
+  ['蟋蟀','insect','ㄒㄧ1 ㄕㄨㄞ4','e:🦗','靠翅膀互相摩擦，發出「唧唧」的叫聲。'],
+  ['甲蟲','insect','ㄐㄧㄚ3 ㄔㄨㄥ2','e:🪲','硬硬的前翅像盔甲，保護下面薄薄的後翅。'],
+  ['蟑螂','insect','ㄓㄤ1 ㄌㄤ2','e:🪳','牠們的祖先三億多年前就在地球上了。'],
+  ['毛毛蟲','insect','ㄇㄠ2 ㄇㄠ2 ㄔㄨㄥ2','e:🐛','長大後會變成蝴蝶或蛾。'],
+  ['蜻蜓','insect','ㄑㄧㄥ1 ㄊㄧㄥ2','s:dragonfly','小時候住在水裡，叫做「水蠆」。'],
+  ['螳螂','insect','ㄊㄤ2 ㄌㄤ2','s:mantis','用像鐮刀一樣的前腳抓小蟲來吃。'],
+  ['獨角仙','insect','ㄉㄨ2 ㄐㄧㄠ3 ㄒㄧㄢ1','s:beetle','公的頭上有一根大角，力氣很大。'],
+  ['螢火蟲','insect','ㄧㄥ2 ㄏㄨㄛ3 ㄔㄨㄥ2','s:firefly','尾巴會發光，用光和同伴打招呼。'],
+  ['蟬','insect','ㄔㄢ2','s:cicada','小時候在土裡住好幾年，才爬出來脫殼。'],
+
+  ['海豚','sea','ㄏㄞ3 ㄊㄨㄣ2','e:🐬','用聲音找東西，也用聲音和同伴聊天。'],
+  ['鯨魚','sea','ㄐㄧㄥ1 ㄩ2','e:🐳','藍鯨是地球上最大的動物。'],
+  ['鯊魚','sea','ㄕㄚ1 ㄩ2','e:🦈','牙齒掉了會一直長出新的。'],
+  ['章魚','sea','ㄓㄤ1 ㄩ2','e:🐙','有八隻腳，遇到危險會噴墨汁逃跑。'],
+  ['魷魚','sea','ㄧㄡ2 ㄩ2','e:🦑','有十隻腳，其中兩隻特別長。'],
+  ['螃蟹','sea','ㄆㄤ2 ㄒㄧㄝ4','e:🦀','常常橫著走路。'],
+  ['龍蝦','sea','ㄌㄨㄥ2 ㄒㄧㄚ1','e:🦞','長大時要脫掉舊殼，換上新的殼。'],
+  ['海龜','sea','ㄏㄞ3 ㄍㄨㄟ1','e:🐢','媽媽會爬上沙灘挖洞生蛋。'],
+  ['河豚','sea','ㄏㄜ2 ㄊㄨㄣ2','e:🐡','遇到危險會把身體脹成一顆球。'],
+  ['海豹','sea','ㄏㄞ3 ㄅㄠ4','e:🦭','在陸地上用肚子一扭一扭地前進。'],
+  ['小丑魚','sea','ㄒㄧㄠ3 ㄔㄡ3 ㄩ2','e:🐠','住在海葵裡，不怕海葵的刺。',0],
+  ['海星','sea','ㄏㄞ3 ㄒㄧㄥ1','s:starfish','手斷了還可以再長出來。'],
+  ['海馬','sea','ㄏㄞ3 ㄇㄚ3','s:seahorse','是海馬爸爸把寶寶生下來的。',0],
+  ['水母','sea','ㄕㄨㄟ3 ㄇㄨ3','s:jelly','身體大部分都是水，沒有骨頭。',0],
+  ['珊瑚','sea','ㄕㄢ1 ㄏㄨ2','s:coral','看起來像植物，其實是很多小動物住在一起。'],
+
+  ['三葉蟲','ancient','ㄙㄢ1 ㄧㄝ4 ㄔㄨㄥ2','s:trilobite','五億多年前就住在海裡，身體分成三長條。'],
+  ['菊石','ancient','ㄐㄩ2 ㄕ2','s:ammonite','殼捲成一圈一圈，是很常見的化石。'],
+  ['鸚鵡螺','ancient','ㄧㄥ1 ㄨ3 ㄌㄨㄛ2','s:nautilus','被叫做「活化石」，現在海裡還找得到。'],
+  ['奇蝦','ancient','ㄑㄧ2 ㄒㄧㄚ1','s:anomalo','五億年前的大型獵食者，前面有兩隻抓東西的大觸手。'],
+  ['鄧氏魚','ancient','ㄉㄥ4 ㄕ4 ㄩ2','s:dunkle','頭上包著厚厚的骨板，咬合力非常強。'],
+  ['巨齒鯊','ancient','ㄐㄩ4 ㄔ3 ㄕㄚ1','s:megalodon','古代的超大鯊魚，一顆牙齒比大人的手掌還大。'],
+  ['滄龍','ancient','ㄘㄤ1 ㄌㄨㄥ2','s:mosasaur','住在海裡的大型爬蟲類，牠不是恐龍喔。'],
+  ['蛇頸龍','ancient','ㄕㄜ2 ㄐㄧㄥ3 ㄌㄨㄥ2','s:plesio','脖子長長的，用四片大鰭在海裡划水。'],
+  ['魚龍','ancient','ㄩ2 ㄌㄨㄥ2','s:ichthyo','長得有點像海豚，是古代的海洋爬蟲類。'],
+  ['海蠍','ancient','ㄏㄞ3 ㄒㄧㄝ1','s:eurypterid','古代的節肢動物，有的比大人還要大。'],
+  ['海百合','ancient','ㄏㄞ3 ㄅㄞ3 ㄏㄜ2','s:crinoid','長得像一朵花，其實是動物，和海星是親戚。',0],
+  // 昆蟲（新增）
+  ['蒼蠅','insect','ㄘㄤ1 ㄧㄥ2','e:🪰','腳上有細毛，可以用腳嚐味道。'],
+  ['蚱蜢','insect','ㄓㄚ4 ㄇㄥ3','s:grasshopper','後腳又長又有力，一跳就很遠。'],
+  ['天牛','insect','ㄊㄧㄢ1 ㄋㄧㄡ2','s:longhorn','觸角非常長，有的比身體還長。'],
+  ['鍬形蟲','insect','ㄑㄧㄠ1 ㄒㄧㄥ2 ㄔㄨㄥ2','s:stag','頭上有像大剪刀一樣的大顎。'],
+  ['竹節蟲','insect','ㄓㄨ2 ㄐㄧㄝ2 ㄔㄨㄥ2','s:stick','長得像樹枝，躲在樹上很難被發現。'],
+  ['糞金龜','insect','ㄈㄣ4 ㄐㄧㄣ1 ㄍㄨㄟ1','s:dung','會把糞便滾成球，搬回家當食物。'],
+  // 海洋生物（新增）
+  ['企鵝','sea','ㄑㄧ4 ㄜ2','e:🐧','不會飛，但是非常會游泳。'],
+  ['海獺','sea','ㄏㄞ3 ㄊㄚ4','e:🦦','會躺在水面上，用石頭敲開貝殼。'],
+  ['鯨鯊','sea','ㄐㄧㄥ1 ㄕㄚ1','s:whaleshark','世界上最大的魚，但是只吃小小的浮游生物。'],
+  ['魟魚','sea','ㄏㄨㄥ2 ㄩ2','s:ray','身體扁扁的，游起來像在水裡飛。'],
+  ['海葵','sea','ㄏㄞ3 ㄎㄨㄟ2','s:anemone','觸手有刺，小丑魚會住在裡面。'],
+  ['寄居蟹','sea','ㄐㄧ4 ㄐㄩ1 ㄒㄧㄝ4','s:hermit','住在撿來的貝殼裡，長大就換更大的殼。'],
+  ['海膽','sea','ㄏㄞ3 ㄉㄢ3','s:urchin','全身長滿刺，像一顆刺球。',0],
+  ['旗魚','sea','ㄑㄧ2 ㄩ2','s:sailfish','背上有像旗子一樣的大鰭，游得非常快。'],
+  // 遠古海洋生物（新增）
+  ['鱟','ancient','ㄏㄡ4','s:horseshoe','已經在地球上生活四億多年，血是藍色的。'],
+  ['腔棘魚','ancient','ㄑㄧㄤ1 ㄐㄧ2 ㄩ2','s:coelacanth','以前以為已經滅絕，後來又在海裡被找到。'],
+  ['古巨龜','ancient','ㄍㄨ3 ㄐㄩ4 ㄍㄨㄟ1','s:archelon','很久以前的大海龜，比一輛小汽車還大。'],
+  ['箭石','ancient','ㄐㄧㄢ4 ㄕ2','s:belemnite','古代長得像魷魚的動物，化石像一顆子彈。'],
+  // 遠古陸地生物
+  ['猛瑪象','land','ㄇㄥ3 ㄇㄚ3 ㄒㄧㄤ4','s:mammoth','全身長滿長毛，有彎彎的長象牙，住在冰河時期。',0],
+  ['劍齒虎','land','ㄐㄧㄢ4 ㄔ3 ㄏㄨ3','s:sabertooth','嘴巴有兩根像劍一樣的長牙。',1],
+  ['披毛犀','land','ㄆㄧ1 ㄇㄠ2 ㄒㄧ1','s:woollyrhino','全身長毛的犀牛，鼻子上有一根很長的角。'],
+  ['大地懶','land','ㄉㄚ4 ㄉㄧ4 ㄌㄢ3','s:sloth','巨大的地懶，站起來比大象還高。'],
+  ['雕齒獸','land','ㄉㄧㄠ1 ㄔ3 ㄕㄡ4','s:glypto','背著像大鍋子一樣的硬殼，是犰狳的親戚。'],
+  ['恐鳥','land','ㄎㄨㄥ3 ㄋㄧㄠ3','s:moa','不會飛的巨大鳥，比大人還要高。',0],
+  ['恐狼','land','ㄎㄨㄥ3 ㄌㄤ2','s:direwolf','冰河時期的大型狼，咬合力很強。'],
+  ['巨角鹿','land','ㄐㄩ4 ㄐㄧㄠ3 ㄌㄨ4','s:elk','頭上的角張開有三公尺多寬。'],
+  ['洞熊','land','ㄉㄨㄥ4 ㄒㄩㄥ2','s:cavebear','常常住在山洞裡的大熊，很久以前就滅絕了。'],
+  ['巨猿','land','ㄐㄩ4 ㄩㄢ2','s:giganto','很久以前的超大猿，站起來大約有三公尺高。'],
+  ['巨犀','land','ㄐㄩ4 ㄒㄧ1','s:paracera','沒有角的巨大犀牛，是最大的陸地哺乳動物之一。'],
+  ['泰坦巨蟒','land','ㄊㄞ4 ㄊㄢ3 ㄐㄩ4 ㄇㄤ3','s:titanoboa','很久以前的超巨大蛇，身體大約有十三公尺長。'],
+  // 恐龍
+  ['暴龍','dino','ㄅㄠ4 ㄌㄨㄥ2','e:🦖','牙齒又大又尖，是很有名的肉食恐龍。'],
+  ['腕龍','dino','ㄨㄢ4 ㄌㄨㄥ2','e:🦕','脖子很長，可以吃到很高的樹葉。'],
+  ['三角龍','dino','ㄙㄢ1 ㄐㄧㄠ3 ㄌㄨㄥ2','s:trike','頭上有三根角和一個大頸盾。'],
+  ['劍龍','dino','ㄐㄧㄢ4 ㄌㄨㄥ2','s:stego','背上有兩排骨板，尾巴有尖刺。'],
+  ['甲龍','dino','ㄐㄧㄚ3 ㄌㄨㄥ2','s:ankylo','身上像穿了盔甲，尾巴有一個大骨錘。'],
+  ['迅猛龍','dino','ㄒㄩㄣ4 ㄇㄥ3 ㄌㄨㄥ2','s:raptor','跑得很快，腳上有彎彎的大爪子。'],
+  ['棘龍','dino','ㄐㄧ2 ㄌㄨㄥ2','s:spino','背上有一片像帆的大棘，很會抓魚。'],
+  ['翼龍','dino','ㄧ4 ㄌㄨㄥ2','s:ptero','會飛的爬蟲類，不過牠不是恐龍喔。'],
+  ['梁龍','dino','ㄌㄧㄤ2 ㄌㄨㄥ2','s:diplo','身體非常長，尾巴像一條鞭子。'],
+  ['鴨嘴龍','dino','ㄧㄚ1 ㄗㄨㄟ3 ㄌㄨㄥ2','s:duckbill','嘴巴扁扁的像鴨子，是吃植物的恐龍。'],
+  ['腫頭龍','dino','ㄓㄨㄥ3 ㄊㄡ2 ㄌㄨㄥ2','s:pachy','頭頂又厚又硬，像戴了一頂安全帽。'],
+  ['禽龍','dino','ㄑㄧㄣ2 ㄌㄨㄥ2','s:iguano','前腳的大拇指是一根尖刺。'],
+  ['異特龍','dino','ㄧ4 ㄊㄜ4 ㄌㄨㄥ2','s:allo','比暴龍更早出現的大型肉食恐龍。'],
+  // 九大行星
+  ['水星','planet','ㄕㄨㄟ3 ㄒㄧㄥ1','s:mercury','離太陽最近，也是八大行星裡最小的。'],
+  ['金星','planet','ㄐㄧㄣ1 ㄒㄧㄥ1','s:venus','是最熱的行星，從地球看起來非常亮。'],
+  ['地球','planet','ㄉㄧ4 ㄑㄧㄡ2','s:earth','我們住的地方，有很多水和生物。'],
+  ['火星','planet','ㄏㄨㄛ3 ㄒㄧㄥ1','s:mars','表面紅紅的，有太陽系最高的火山。'],
+  ['木星','planet','ㄇㄨ4 ㄒㄧㄥ1','s:jupiter','太陽系最大的行星，身上有一個大紅斑。'],
+  ['土星','planet','ㄊㄨ3 ㄒㄧㄥ1','s:saturn','有一圈很漂亮的光環。'],
+  ['天王星','planet','ㄊㄧㄢ1 ㄨㄤ2 ㄒㄧㄥ1','s:uranus','幾乎是躺著轉的，看起來是藍綠色。'],
+  ['海王星','planet','ㄏㄞ3 ㄨㄤ2 ㄒㄧㄥ1','s:neptune','離太陽很遠，那裡的風非常大。'],
+  ['冥王星','planet','ㄇㄧㄥ2 ㄨㄤ2 ㄒㄧㄥ1','s:pluto','以前是第九大行星，現在叫做矮行星。'],
+  // 神獸（其他圖鑑全部收集完才開放）
+  ['朱雀','myth','ㄓㄨ1 ㄑㄩㄝ4','s:zhuque','傳說中守護南方的紅色神鳥，全身像火焰一樣。'],
+  ['青龍','myth','ㄑㄧㄥ1 ㄌㄨㄥ2','s:qinglong','傳說中守護東方的青色神龍。'],
+  ['白虎','myth','ㄅㄞ2 ㄏㄨ3','s:baihu','傳說中守護西方的白色神虎。'],
+  ['玄武','myth','ㄒㄩㄢ2 ㄨ3','s:xuanwu','傳說中守護北方的神獸，是烏龜和蛇在一起。'],
+  ['九尾狐','myth','ㄐㄧㄡ3 ㄨㄟ3 ㄏㄨ2','s:ninetail','傳說中有九條尾巴的狐狸。',0],
+  ['麒麟','myth','ㄑㄧ2 ㄌㄧㄣ2','s:qilin','傳說中頭上有角的吉祥神獸，出現就代表好運。'],
+  ['鳳凰','myth','ㄈㄥ4 ㄏㄨㄤ2','s:phoenix','傳說中的百鳥之王，羽毛五顏六色。'],
+  ['貔貅','myth','ㄆㄧ2 ㄒㄧㄡ1','s:pixiu','傳說中很會守護寶物的神獸。'],
+  ['年獸','myth','ㄋㄧㄢ2 ㄕㄡ4','s:nian','傳說中過年時會出來的怪獸，最怕紅色和鞭炮聲。'],
+  ['燭龍','myth','ㄓㄨ2 ㄌㄨㄥ2','s:zhulong','傳說中眼睛睜開就是白天，閉上就變成晚上。'],
+  ['畢方','myth','ㄅㄧ4 ㄈㄤ1','s:bifang','傳說中只有一隻腳的火鳥。'],
+  ['鯤鵬','myth','ㄎㄨㄣ1 ㄆㄥ2','s:kunpeng','傳說中大魚「鯤」變成的超大鳥「鵬」。'],
+  // 第三批新增
+  ['蝗蟲','insect','ㄏㄨㄤ2 ㄔㄨㄥ2','s:locust','很多隻聚在一起飛，一下子就能把田裡的植物吃光。'],
+  ['飛蛾','insect','ㄈㄟ1 ㄜ2','s:moth','晚上出來活動，很喜歡繞著燈光飛。'],
+  ['虎頭蜂','insect','ㄏㄨ3 ㄊㄡ2 ㄈㄥ1','s:hornet','身上有黃黑條紋，很兇又會螫人，看到要趕快走開。'],
+  ['椿象','insect','ㄔㄨㄣ1 ㄒㄧㄤ4','s:stinkbug','遇到危險會放出臭臭的味道，所以又叫「臭屁蟲」。'],
+  ['螻蛄','insect','ㄌㄡ2 ㄍㄨ1','s:molecricket','前腳像小鏟子，很會在土裡挖洞。'],
+  ['虎鯨','sea','ㄏㄨ3 ㄐㄧㄥ1','s:orca','黑白相間，會一群一起合作打獵，是海裡很厲害的獵食者。'],
+  ['飛魚','sea','ㄈㄟ1 ㄩ2','s:flyingfish','胸鰭又長又大，可以跳出水面在空中滑翔。'],
+  ['海牛','sea','ㄏㄞ3 ㄋㄧㄡ2','s:manatee','慢吞吞地吃海草，個性很溫和。'],
+  ['海蛇','sea','ㄏㄞ3 ㄕㄜ2','s:seasnake','住在海裡的蛇，尾巴扁扁的像船槳，毒性很強。'],
+  ['鮭魚','sea','ㄍㄨㄟ1 ㄩ2','s:salmon','長大後會努力游回出生的河流生寶寶。'],
+  ['上龍','ancient','ㄕㄤ4 ㄌㄨㄥ2','s:pliosaur','頭很大、脖子很短，是古代海裡的大型獵食者。'],
+  ['旋齒鯊','ancient','ㄒㄩㄢ2 ㄔ3 ㄕㄚ1','s:helicoprion','下巴的牙齒捲成一圈，看起來像蚊香。'],
+  ['皮卡蟲','ancient','ㄆㄧ2 ㄎㄚ3 ㄔㄨㄥ2','s:pikaia','五億多年前的小小動物，身上有一條像脊椎的長線。'],
+  ['海蕾','ancient','ㄏㄞ3 ㄌㄟ3','s:blastoid','長得像花苞，用一根柄站在海底，是海百合的親戚。',0],
+  ['筆石','ancient','ㄅㄧ3 ㄕ2','s:graptolite','化石看起來像用筆畫在石頭上的線條。'],
+  ['恐象','land','ㄎㄨㄥ3 ㄒㄧㄤ4','s:deino','古代的大象，象牙從下巴長出來，往下彎。'],
+  ['恐鶴','land','ㄎㄨㄥ3 ㄏㄜ4','s:terrorbird','不會飛的大鳥，嘴巴又大又彎，跑得很快。'],
+  ['袋獅','land','ㄉㄞ4 ㄕ1','s:thylacoleo','古代澳洲肚子有育兒袋的動物，咬力非常強。'],
+  ['短面熊','land','ㄉㄨㄢ3 ㄇㄧㄢ4 ㄒㄩㄥ2','s:shortbear','腿很長的大熊，站起來超過三公尺高。'],
+  ['原牛','land','ㄩㄢ2 ㄋㄧㄡ2','s:aurochs','古代的大野牛，現在養的牛就是牠的後代。'],
+  ['副櫛龍','dino','ㄈㄨ4 ㄐㄧㄝ2 ㄌㄨㄥ2','s:parasaur','頭上有一根長長的管子，可以發出像喇叭的聲音。'],
+  ['竊蛋龍','dino','ㄑㄧㄝ4 ㄉㄢ4 ㄌㄨㄥ2','s:oviraptor','以前被誤會在偷蛋，其實牠是在保護自己的蛋。'],
+  ['雷龍','dino','ㄌㄟ2 ㄌㄨㄥ2','s:bronto','身體非常巨大，名字的意思是「打雷的蜥蜴」。'],
+  ['似鳥龍','dino','ㄙ4 ㄋㄧㄠ3 ㄌㄨㄥ2','s:ornitho','長得像鴕鳥，是跑得很快的恐龍。'],
+  ['牛龍','dino','ㄋㄧㄡ2 ㄌㄨㄥ2','s:carno','頭上有兩根像牛一樣的角，前腳非常短。'],
+  ['太陽','planet','ㄊㄞ4 ㄧㄤ2','s:sun','太陽系正中間的大火球，會發光又發熱。'],
+  ['月球','planet','ㄩㄝ4 ㄑㄧㄡ2','s:moon','繞著地球轉，表面有很多坑洞。'],
+  ['彗星','planet','ㄏㄨㄟ4 ㄒㄧㄥ1','s:comet','靠近太陽的時候，會拖出一條長長的尾巴。'],
+  ['流星','planet','ㄌㄧㄡ2 ㄒㄧㄥ1','s:meteor','太空的小石頭掉進大氣層，燒起來發出一道光。'],
+  ['小行星','planet','ㄒㄧㄠ3 ㄒㄧㄥ2 ㄒㄧㄥ1','s:asteroid','繞著太陽轉的大石頭，很多住在火星和木星中間。'],
+  ['應龍','myth','ㄧㄥ4 ㄌㄨㄥ2','s:yinglong','傳說中長著翅膀的神龍，會帶來雨水。'],
+  ['白澤','myth','ㄅㄞ2 ㄗㄜ2','s:baize','傳說中會說話、認識天下所有妖怪的白色神獸。'],
+  ['精衛','myth','ㄐㄧㄥ1 ㄨㄟ4','s:jingwei','傳說中每天叼著樹枝和小石頭，想把大海填平的小鳥。'],
+  ['夔牛','myth','ㄎㄨㄟ2 ㄋㄧㄡ2','s:kuiniu','傳說中只有一隻腳的神牛，叫聲像打雷。'],
+  ['重明鳥','myth','ㄔㄨㄥ2 ㄇㄧㄥ2 ㄋㄧㄠ3','s:chongming','傳說中每隻眼睛有兩個瞳孔，可以趕走妖怪。'],
+  // 第四批新增（各類補到 30 種）
+  ['白蟻','insect','ㄅㄞ2 ㄧ3','s:termite','住在木頭裡，會把木頭慢慢吃掉。'],
+  ['水黽','insect','ㄕㄨㄟ3 ㄇㄧㄣ3','s:strider','腳又細又長，可以站在水面上滑來滑去。',0],
+  ['蜉蝣','insect','ㄈㄨ2 ㄧㄡ2','s:mayfly','長大以後只能活很短的時間，有的只活一天。'],
+  ['豆娘','insect','ㄉㄡ4 ㄋㄧㄤ2','s:damsel','長得像細細的蜻蜓，停下來時會把翅膀合起來。'],
+  ['象鼻蟲','insect','ㄒㄧㄤ4 ㄅㄧ2 ㄔㄨㄥ2','s:weevil','嘴巴長長的，看起來像大象的鼻子。'],
+  ['枯葉蝶','insect','ㄎㄨ1 ㄧㄝ4 ㄉㄧㄝ2','s:leafbfly','翅膀合起來像一片枯葉子，很會躲起來。'],
+  ['海獅','sea','ㄏㄞ3 ㄕ1','s:sealion','有小小的耳朵，可以用鰭在岸上走路。'],
+  ['鮪魚','sea','ㄨㄟ3 ㄩ2','s:tuna','游得非常快，一輩子幾乎都不停下來。'],
+  ['薄片龍','ancient','ㄅㄛ2 ㄆㄧㄢ4 ㄌㄨㄥ2','s:elasmo','脖子超級長，差不多是身體的一半。'],
+  ['海王龍','ancient','ㄏㄞ3 ㄨㄤ2 ㄌㄨㄥ2','s:tylo','滄龍的親戚，鼻子尖尖的，會用頭撞獵物。'],
+  ['幻龍','ancient','ㄏㄨㄢ4 ㄌㄨㄥ2','s:notho','住在海邊，會下水抓魚，也會爬上岸休息。'],
+  ['龍王鯨','ancient','ㄌㄨㄥ2 ㄨㄤ2 ㄐㄧㄥ1','s:basilo','古代的鯨魚，身體又細又長，像一條大海蛇。'],
+  ['利茲魚','ancient','ㄌㄧ4 ㄗ1 ㄩ2','s:leeds','古代超大的魚，只吃海裡小小的浮游生物。'],
+  ['劍射魚','ancient','ㄐㄧㄢ4 ㄕㄜ4 ㄩ2','s:xipha','下巴往上翹，嘴裡有尖尖的大牙齒。'],
+  ['盾皮魚','ancient','ㄉㄨㄣ4 ㄆㄧ2 ㄩ2','s:placo','頭和身體前面包著硬硬的骨板，像穿了盔甲。'],
+  ['房角石','ancient','ㄈㄤ2 ㄐㄧㄠ3 ㄕ2','s:camero','殼長得像一根又直又長的冰淇淋甜筒。'],
+  ['怪誕蟲','ancient','ㄍㄨㄞ4 ㄉㄢ4 ㄔㄨㄥ2','s:hallu','背上有一排刺，下面有一排腳，長得很奇怪。'],
+  ['地蜥鱷','ancient','ㄉㄧ4 ㄒㄧ1 ㄜ4','s:metrio','住在海裡的古代鱷魚，腳變得像鰭一樣。'],
+  ['洞獅','land','ㄉㄨㄥ4 ㄕ1','s:cavelion','冰河時期的大獅子，公獅子沒有長鬃毛。'],
+  ['巨袋熊','land','ㄐㄩ4 ㄉㄞ4 ㄒㄩㄥ2','s:diproto','像犀牛一樣大的袋熊，是最大的有袋類動物。'],
+  ['爪獸','land','ㄓㄠ3 ㄕㄡ4','s:chalico','頭像馬，前腳很長，用手指上的大爪子拉樹枝吃。'],
+  ['巨駝','land','ㄐㄩ4 ㄊㄨㄛ2','s:camel','古代的大駱駝，比現在的駱駝還要高。'],
+  ['恐豬','land','ㄎㄨㄥ3 ㄓㄨ1','s:entelo','長得像大豬，嘴巴很大，什麼都吃。'],
+  ['巨袋鼠','land','ㄐㄩ4 ㄉㄞ4 ㄕㄨ3','s:procop','臉短短的大袋鼠，站起來比大人還高。'],
+  ['巨脈蜻蜓','land','ㄐㄩ4 ㄇㄞ4 ㄑㄧㄥ1 ㄊㄧㄥ2','s:meganeura','古代超大的蜻蜓，翅膀張開差不多和老鷹一樣寬。'],
+  ['節胸蜈蚣','land','ㄐㄧㄝ2 ㄒㄩㄥ1 ㄨ2 ㄍㄨㄥ1','s:arthro','古代超大的馬陸，身體比大人還要長。'],
+  ['巨河狸','land','ㄐㄩ4 ㄏㄜ2 ㄌㄧ2','s:beaver','跟黑熊差不多大的河狸，門牙又大又長。'],
+  ['雷獸','land','ㄌㄟ2 ㄕㄡ4','s:bronto2','長得像犀牛，鼻子上有一個像彈弓的Y字形角。'],
+  ['巨鬣狗','land','ㄐㄩ4 ㄌㄧㄝ4 ㄍㄡ3','s:hyena','像獅子一樣大的鬣狗，咬力很強。'],
+  ['異齒龍','land','ㄧ4 ㄔ3 ㄌㄨㄥ2','s:dimetro','背上有一片大帆，比恐龍還要更早出現。'],
+  ['渡渡鳥','land','ㄉㄨ4 ㄉㄨ4 ㄋㄧㄠ3','s:dodo','不會飛的胖胖鳥，大約三百多年前滅絕了。'],
+  ['冥河龍','dino','ㄇㄧㄥ2 ㄏㄜ2 ㄌㄨㄥ2','s:stygi','頭頂圓圓的，周圍長著一圈尖刺。'],
+  ['戟龍','dino','ㄐㄧ3 ㄌㄨㄥ2','s:styraco','鼻子上有一根大角，頸盾邊緣有好幾根長刺。'],
+  ['原角龍','dino','ㄩㄢ2 ㄐㄧㄠ3 ㄌㄨㄥ2','s:protocera','三角龍的小親戚，有頸盾，但是沒有長角。'],
+  ['鯊齒龍','dino','ㄕㄚ1 ㄔ3 ㄌㄨㄥ2','s:carcharo','牙齒薄薄的有鋸齒，很像鯊魚的牙齒。'],
+  ['巨獸龍','dino','ㄐㄩ4 ㄕㄡ4 ㄌㄨㄥ2','s:giga','住在南美洲的超大肉食恐龍，跟暴龍差不多大。'],
+  ['阿根廷龍','dino','ㄚ1 ㄍㄣ1 ㄊㄧㄥ2 ㄌㄨㄥ2','s:argentino','世界上最大的恐龍之一，比好幾輛公車排起來還長。'],
+  ['恐爪龍','dino','ㄎㄨㄥ3 ㄓㄠ3 ㄌㄨㄥ2','s:deinony','腳上有一根像鐮刀一樣的大爪子。',0],
+  ['小盜龍','dino','ㄒㄧㄠ3 ㄉㄠ4 ㄌㄨㄥ2','s:micro','小小的恐龍，手和腳上都有羽毛，可以在樹林間滑翔。'],
+  ['鐮刀龍','dino','ㄌㄧㄢ2 ㄉㄠ1 ㄌㄨㄥ2','s:therizino','手上有超長的爪子，其實是吃植物的。'],
+  ['雙冠龍','dino','ㄕㄨㄤ1 ㄍㄨㄢ1 ㄌㄨㄥ2','s:dilo','頭上有兩片薄薄的冠，像戴了一頂帽子。'],
+  ['包頭龍','dino','ㄅㄠ1 ㄊㄡ2 ㄌㄨㄥ2','s:euoplo','全身包著骨板，連眼皮都有骨頭保護。'],
+  ['慈母龍','dino','ㄘ2 ㄇㄨ3 ㄌㄨㄥ2','s:maia','會照顧自己的寶寶，是很好的恐龍媽媽。']
+];
+const WORDS = RAW.map(([w,cat,s,art,fact,sd])=>({w,cat,art,fact,sd:sd===undefined?-1:sd,
+  syl:s.split(' ').map(x=>({b:[...x.slice(0,-1)],t:+x.slice(-1)}))}));
+
+// 四聲比對用的字（依序為一～四聲，null 表示沒有常用字）
+const FOUR = {
+  ㄏㄨ:['呼','湖','虎','戶'],ㄉㄧㄝ:['爹','蝶',null,null],ㄇㄧ:[null,'迷','米','蜜'],ㄈㄥ:['風',null,null,'鳳'],
+  ㄇㄚ:['媽','麻','馬','罵'],ㄧ:['衣','姨','椅','意'],ㄆㄧㄠ:['飄','瓢',null,'票'],ㄔㄨㄥ:['充','蟲','寵',null],
+  ㄒㄧ:['西','習','洗','細'],ㄕㄨㄞ:['摔',null,'甩','帥'],ㄐㄧㄚ:['家','夾','甲','價'],ㄓㄤ:['張',null,'掌','丈'],
+  ㄌㄤ:[null,'狼','朗','浪'],ㄇㄠ:['貓','毛',null,'帽'],ㄑㄧㄥ:['青','晴','請','慶'],ㄊㄧㄥ:['聽','停','挺',null],
+  ㄊㄤ:['湯','糖','躺','燙'],ㄉㄨ:[null,'讀','賭','肚'],ㄐㄧㄠ:['交',null,'角','叫'],ㄒㄧㄢ:['先','鹹','險','線'],
+  ㄧㄥ:['鷹','螢','影','硬'],ㄏㄨㄛ:[null,'活','火','貨'],ㄔㄢ:[null,'蟬','產',null],ㄏㄞ:[null,'孩','海','害'],
+  ㄊㄨㄣ:['吞','豚',null,null],ㄐㄧㄥ:['鯨',null,'井','鏡'],ㄩ:[null,'魚','雨','玉'],ㄕㄚ:['沙',null,'傻',null],
+  ㄧㄡ:['優','油','有','又'],ㄆㄤ:[null,'旁',null,'胖'],ㄒㄧㄝ:['些','鞋','寫','謝'],ㄌㄨㄥ:[null,'龍',null,'弄'],
+  ㄒㄧㄚ:['蝦','霞',null,'下'],ㄍㄨㄟ:['龜',null,'鬼','貴'],ㄏㄜ:['喝','河',null,'賀'],ㄅㄠ:['包',null,'飽','抱'],
+  ㄒㄧㄠ:['消',null,'小','笑'],ㄔㄡ:['抽','愁','醜','臭'],ㄒㄧㄥ:['星','行','醒','姓'],ㄕㄨㄟ:[null,null,'水','睡'],
+  ㄇㄨ:[null,null,'母','木'],ㄕㄢ:['山',null,'閃','扇'],ㄙㄢ:['三',null,'傘','散'],ㄧㄝ:['耶','爺','也','葉'],
+  ㄐㄩ:['居','菊','舉','巨'],ㄕ:['詩','石','使','是'],ㄨ:['烏','無','五','霧'],ㄌㄨㄛ:[null,'螺',null,'落'],
+  ㄑㄧ:['七','奇','起','氣'],ㄉㄥ:['燈',null,'等','凳'],ㄔ:['吃','池','齒',null],ㄘㄤ:['倉',null,null,null],
+  ㄕㄜ:[null,'蛇','捨','社'],ㄅㄞ:[null,'白','百','拜'],
+  ㄓㄚ:[null,null,'眨','炸'],ㄇㄥ:[null,'萌','猛','夢'],ㄊㄧㄢ:['天','田',null,null],ㄋㄧㄡ:[null,'牛','扭',null],
+  ㄑㄧㄠ:['敲','橋','巧',null],ㄓㄨ:['豬','竹','主','住'],ㄐㄧㄝ:['街','節','姐','借'],ㄈㄣ:['分',null,'粉','糞'],
+  ㄐㄧㄣ:['金',null,'緊','近'],ㄜ:[null,'鵝',null,'餓'],ㄊㄚ:['他',null,'塔','踏'],ㄏㄨㄥ:[null,'紅',null,null],
+  ㄎㄨㄟ:[null,'葵',null,'櫃'],ㄐㄧ:['雞','急','擠','記'],ㄉㄢ:['單',null,'膽','蛋'],ㄏㄡ:[null,'猴','吼','後'],
+  ㄑㄧㄤ:['槍','牆','搶',null],ㄍㄨ:['姑',null,'古','故'],ㄐㄧㄢ:['尖',null,'剪','劍'],ㄨㄢ:['彎','完','晚','萬'],
+  ㄒㄩㄣ:[null,'尋',null,'訓'],ㄌㄧㄤ:[null,'涼','兩','亮'],ㄧㄚ:['鴨','牙',null,'亞'],ㄗㄨㄟ:[null,null,'嘴','最'],
+  ㄓㄨㄥ:['中',null,'腫','重'],ㄊㄡ:['偷','頭',null,'透'],ㄑㄧㄣ:['親','琴',null,null],ㄊㄜ:[null,null,null,'特'],
+  ㄉㄧ:['低','笛','底','地'],ㄑㄧㄡ:['秋','球',null,null],ㄊㄨ:[null,'圖','土','兔'],ㄨㄤ:[null,'王','網','忘'],
+  ㄇㄧㄥ:[null,'名',null,'命'],
+  ㄒㄧㄤ:['香','詳','想','象'],
+  ㄆㄧ:['批','皮','匹','屁'],
+  ㄉㄚ:['搭','答','打','大'],
+  ㄌㄢ:[null,'藍','懶','爛'],
+  ㄉㄧㄠ:['雕',null,null,'掉'],
+  ㄕㄡ:['收',null,'手','獸'],
+  ㄎㄨㄥ:['空',null,'孔','控'],
+  ㄋㄧㄠ:[null,null,'鳥','尿'],
+  ㄌㄨ:[null,'爐','魯','鹿'],
+  ㄉㄨㄥ:['東',null,'懂','洞'],
+  ㄒㄩㄥ:['兄','熊',null,null],
+  ㄩㄢ:[null,'猿','遠','願'],
+  ㄑㄩㄝ:['缺',null,null,'確'],
+  ㄒㄩㄢ:['宣','玄','選',null],
+  ㄐㄧㄡ:[null,null,'九','就'],
+  ㄨㄟ:['威','圍','尾','味'],
+  ㄌㄧㄣ:[null,'林',null,null],
+  ㄏㄨㄤ:[null,'黃','謊',null],
+  ㄒㄧㄡ:['休',null,null,'秀'],
+  ㄋㄧㄢ:[null,'年',null,'念'],
+  ㄅㄧ:[null,'鼻','筆','必'],
+  ㄈㄤ:['方','房','訪','放'],
+  ㄎㄨㄣ:['昆',null,'捆','困'],
+  ㄆㄥ:[null,'朋','捧','碰'],
+  ㄊㄢ:[null,'談','坦','炭'],
+  ㄇㄤ:[null,'忙','蟒',null],
+  ㄊㄞ:[null,'台',null,'太'],
+  ㄈㄟ:['飛','肥','匪','費'],ㄔㄨㄣ:['春','純','蠢',null],ㄌㄡ:[null,'樓','簍','漏'],ㄕㄤ:['商',null,'賞','上'],
+  ㄎㄚ:['咖',null,'卡',null],ㄌㄟ:[null,'雷','蕾','淚'],ㄉㄞ:['呆',null,'歹','袋'],ㄉㄨㄢ:['端',null,'短','斷'],
+  ㄇㄧㄢ:[null,'棉','免','面'],ㄈㄨ:['夫','服','斧','父'],ㄑㄧㄝ:['切','茄','且','竊'],ㄙ:['思',null,'死','四'],
+  ㄩㄝ:['約',null,null,'月'],ㄏㄨㄟ:['灰','回','毀','會'],ㄌㄧㄡ:[null,'流','柳','六'],ㄗㄜ:[null,'澤',null,null],
+  ㄧㄤ:['央','羊','養','樣'],
+  ㄇㄧㄣ:[null,'民','敏',null],ㄉㄡ:['兜',null,'抖','豆'],ㄋㄧㄤ:[null,'娘',null,'釀'],ㄎㄨ:['哭',null,'苦','褲'],
+  ㄅㄛ:['波','薄','跛',null],ㄆㄧㄢ:['偏',null,null,'片'],ㄏㄨㄢ:['歡','環','緩','換'],ㄌㄧ:[null,'梨','李','力'],
+  ㄗ:['資',null,'紫','自'],ㄉㄨㄣ:['蹲',null,null,'盾'],ㄍㄨㄞ:['乖',null,'拐','怪'],ㄓㄠ:['招',null,'找','照'],
+  ㄊㄨㄛ:['拖','駝','妥',null],ㄕㄨ:['書','熟','鼠','樹'],ㄇㄞ:[null,'埋','買','賣'],ㄍㄨㄥ:['公',null,'拱','共'],
+  ㄌㄧㄝ:[null,null,null,'獵'],ㄍㄡ:['溝',null,'狗','夠'],ㄍㄣ:['根',null,null,null],ㄉㄠ:['刀',null,'島','到'],
+  ㄌㄧㄢ:[null,'連','臉','練'],ㄕㄨㄤ:['雙',null,'爽',null],ㄍㄨㄢ:['關',null,'管','罐'],ㄅㄢ:['班',null,'板','半'],
+  ㄘ:[null,'詞','此','刺'],ㄚ:['阿',null,null,null]
+};
+// 念單一注音符號時用的字
+const READ = {ㄅ:'玻',ㄆ:'坡',ㄇ:'摸',ㄈ:'佛',ㄉ:'得',ㄊ:'特',ㄋ:'訥',ㄌ:'勒',ㄍ:'哥',ㄎ:'科',ㄏ:'喝',ㄐ:'基',ㄑ:'七',ㄒ:'希',
+  ㄓ:'知',ㄔ:'吃',ㄕ:'詩',ㄖ:'日',ㄗ:'資',ㄘ:'疵',ㄙ:'思',ㄧ:'衣',ㄨ:'烏',ㄩ:'迂',ㄚ:'啊',ㄛ:'喔',ㄜ:'鵝',ㄝ:'欸',
+  ㄞ:'哀',ㄟ:'誒',ㄠ:'凹',ㄡ:'歐',ㄢ:'安',ㄣ:'恩',ㄤ:'骯',ㄥ:'鞥',ㄦ:'兒'};
+const INITIALS='ㄅㄆㄇㄈㄉㄊㄋㄌㄍㄎㄏㄐㄑㄒㄓㄔㄕㄖㄗㄘㄙ', MEDIALS='ㄧㄨㄩ', FINALS='ㄚㄛㄜㄝㄞㄟㄠㄡㄢㄣㄤㄥㄦ';
+const CONF = {ㄅ:'ㄆㄉ',ㄆ:'ㄅㄊ',ㄇ:'ㄋ',ㄈ:'ㄏ',ㄉ:'ㄊㄅ',ㄊ:'ㄉㄆ',ㄋ:'ㄌㄇ',ㄌ:'ㄋㄖ',ㄍ:'ㄎ',ㄎ:'ㄍ',ㄏ:'ㄈ',
+  ㄐ:'ㄑㄓㄗ',ㄑ:'ㄐㄔㄘ',ㄒ:'ㄕㄙ',ㄓ:'ㄗㄐ',ㄔ:'ㄘㄑ',ㄕ:'ㄙㄒ',ㄖ:'ㄌ',ㄗ:'ㄓ',ㄘ:'ㄔ',ㄙ:'ㄕ',
+  ㄧ:'ㄩ',ㄨ:'ㄩ',ㄩ:'ㄧㄨ',ㄚ:'ㄛ',ㄛ:'ㄡㄜ',ㄜ:'ㄝㄛ',ㄝ:'ㄜ',ㄞ:'ㄟ',ㄟ:'ㄞ',ㄠ:'ㄡ',ㄡ:'ㄠㄛ',
+  ㄢ:'ㄤㄣ',ㄣ:'ㄥㄢ',ㄤ:'ㄢ',ㄥ:'ㄣ',ㄦ:'ㄜ'};
+const TONE_NAME=['','一聲','二聲','三聲','四聲'];
+const TONE_SHOW=['','ˉ','ˊ','ˇ','ˋ'];     // 選擇時顯示
+const TONE_WRITE=['','','ˊ','ˇ','ˋ'];     // 正式寫法（一聲不標）
+const ROLE_NAME={i:'聲母',m:'介音',f:'韻母',t:'聲調'};
+const symClass=s=>INITIALS.includes(s)?'i':MEDIALS.includes(s)?'m':'f';
+const roleAt=(b,j)=>INITIALS.includes(b[j])?'i':(MEDIALS.includes(b[j])&&j<b.length-1)?'m':'f';
+const zyStr=s=>s.b.join('')+TONE_WRITE[s.t];
+
+/* ================= 插圖 ================= */
+const SVG = {
+  dragonfly:'<g fill="#cdeefc" stroke="#8cc9e6" stroke-width="1.5"><ellipse cx="29" cy="34" rx="22" ry="7" transform="rotate(-10 29 34)"/><ellipse cx="71" cy="34" rx="22" ry="7" transform="rotate(10 71 34)"/><ellipse cx="31" cy="46" rx="19" ry="6" transform="rotate(12 31 46)"/><ellipse cx="69" cy="46" rx="19" ry="6" transform="rotate(-12 69 46)"/></g><path d="M50 30V90" stroke="#2c7fb8" stroke-width="7" stroke-linecap="round"/><ellipse cx="50" cy="36" rx="7" ry="10" fill="#2c7fb8"/><circle cx="44" cy="22" r="6" fill="#4fb0e0"/><circle cx="56" cy="22" r="6" fill="#4fb0e0"/>',
+  mantis:'<path d="M46 56L28 50M46 60L62 78M42 70L56 92M36 64L20 72" stroke="#4f9a31" stroke-width="3" stroke-linecap="round"/><ellipse cx="40" cy="68" rx="11" ry="24" fill="#6cc04a" transform="rotate(28 40 68)"/><path d="M50 50L60 30" stroke="#5aa83a" stroke-width="7" stroke-linecap="round"/><path d="M52 16L74 18L63 32Z" fill="#6cc04a"/><circle cx="56" cy="20" r="3.5" fill="#2f6b1f"/><circle cx="69" cy="21" r="3.5" fill="#2f6b1f"/><path d="M58 38L82 46L72 30" stroke="#5aa83a" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
+  beetle:'<path d="M30 58L14 50M30 70L14 76M70 58L86 50M70 70L86 76M34 82L24 94M66 82L76 94" stroke="#3a1e0e" stroke-width="3.5" stroke-linecap="round"/><ellipse cx="50" cy="64" rx="24" ry="28" fill="#6b3b1f"/><path d="M50 40V92" stroke="#3a1e0e" stroke-width="2"/><ellipse cx="42" cy="58" rx="5" ry="12" fill="#8d5733"/><ellipse cx="50" cy="36" rx="15" ry="10" fill="#4a2612"/><path d="M47 30Q42 12 54 4Q51 16 55 28Z" fill="#4a2612"/>',
+  firefly:'<circle cx="50" cy="70" r="26" fill="#fff59d" opacity=".6"/><g fill="#e2edf2" opacity=".9"><ellipse cx="36" cy="44" rx="10" ry="20" transform="rotate(20 36 44)"/><ellipse cx="64" cy="44" rx="10" ry="20" transform="rotate(-20 64 44)"/></g><ellipse cx="50" cy="48" rx="11" ry="20" fill="#3b3b3b"/><ellipse cx="50" cy="68" rx="10" ry="9" fill="#ffe24a"/><circle cx="50" cy="27" r="8" fill="#e65c3c"/><path d="M46 21L40 10M54 21L60 10" stroke="#3b3b3b" stroke-width="2.5" stroke-linecap="round"/>',
+  cicada:'<g fill="#e3f4f6" stroke="#8fb9c0" stroke-width="1.5"><path d="M46 36L16 84Q28 92 46 64Z"/><path d="M54 36L84 84Q72 92 54 64Z"/></g><ellipse cx="50" cy="54" rx="12" ry="24" fill="#6d5a3a"/><ellipse cx="50" cy="30" rx="16" ry="8" fill="#5a4a2f"/><circle cx="36" cy="29" r="4.5" fill="#9ccc65"/><circle cx="64" cy="29" r="4.5" fill="#9ccc65"/>',
+  starfish:'<path d="M50 8L61 38L94 40L68 60L78 92L50 73L22 92L32 60L6 40L39 38Z" fill="#ff8a4c" stroke="#d9602a" stroke-width="3" stroke-linejoin="round"/><g fill="#ffd0b0"><circle cx="50" cy="30" r="3"/><circle cx="50" cy="50" r="4"/><circle cx="70" cy="46" r="3"/><circle cx="30" cy="46" r="3"/><circle cx="62" cy="68" r="3"/><circle cx="38" cy="68" r="3"/></g>',
+  seahorse:'<path d="M52 20C72 20 74 40 60 46C76 54 72 74 58 80C47 84 40 76 45 69C49 63 57 67 54 72" fill="none" stroke="#f4a340" stroke-width="13" stroke-linecap="round"/><path d="M48 23L28 28" stroke="#f4a340" stroke-width="7" stroke-linecap="round"/><path d="M54 12L60 6L62 15Z" fill="#e08b26"/><circle cx="55" cy="21" r="3" fill="#333"/><path d="M72 50Q86 54 74 62Z" fill="#ffd08a"/>',
+  jelly:'<g stroke="#e98cc6" stroke-width="4" fill="none" stroke-linecap="round"><path d="M32 50q-6 10 0 20t0 22"/><path d="M44 52q-6 10 0 20t0 18"/><path d="M56 52q6 10 0 20t0 18"/><path d="M68 50q6 10 0 20t0 22"/></g><path d="M20 52Q20 16 50 16Q80 16 80 52Q65 44 50 52Q35 44 20 52Z" fill="#f7a8d8"/><ellipse cx="40" cy="30" rx="8" ry="5" fill="#fcd6ec"/>',
+  coral:'<g stroke="#ff7f6e" stroke-width="9" stroke-linecap="round" fill="none"><path d="M50 92V40M50 72L30 52V28M30 52L18 42M50 62L70 42V20M70 42L84 34M50 50L60 38"/></g><g fill="#ffa596"><circle cx="30" cy="26" r="6"/><circle cx="70" cy="18" r="6"/><circle cx="18" cy="40" r="5"/><circle cx="84" cy="33" r="5"/><circle cx="60" cy="37" r="5"/></g><path d="M20 94H80" stroke="#e3c283" stroke-width="6" stroke-linecap="round"/>',
+  trilobite:'<ellipse cx="50" cy="56" rx="26" ry="36" fill="#9c8468"/><path d="M22 36Q50 4 78 36Z" fill="#7d6750"/><g stroke="#6b5640" stroke-width="2.2" fill="none"><path d="M40 30V88M60 30V88"/><path d="M26 44H74M25 51H75M25 58H75M26 65H74M28 72H72M31 79H69M36 86H64"/></g><circle cx="38" cy="27" r="3" fill="#3d3024"/><circle cx="62" cy="27" r="3" fill="#3d3024"/>',
+  ammonite:'<circle cx="50" cy="50" r="38" fill="#d9a066"/><g stroke="#b77d45" stroke-width="2.5"><path d="M50 12V20M76 24L70 30M88 50H80M76 76L70 70M50 88V80M24 76L30 70M12 50H20M24 24L30 30"/></g><path d="M50 50m0-5a5 5 0 1 1-5 5a10 10 0 0 1 10-10a15 15 0 0 1 15 15a22 22 0 0 1-22 22a30 30 0 0 1-30-30a36 36 0 0 1 36-36" fill="none" stroke="#9a6533" stroke-width="3.5" stroke-linecap="round"/>',
+  nautilus:'<g stroke="#c9844a" stroke-width="3" stroke-linecap="round"><path d="M28 60L8 58M28 64L10 70M30 68L14 80M28 56L12 48"/></g><circle cx="56" cy="50" r="34" fill="#fbeedd"/><g fill="#c9642e"><path d="M56 16Q66 30 62 46Q70 30 74 20Z"/><path d="M82 30Q78 44 66 52Q82 46 88 40Z"/><path d="M90 56Q80 62 68 60Q80 70 86 72Z"/></g><path d="M56 50m-12 0a12 12 0 1 1 12 12" fill="none" stroke="#b9855a" stroke-width="3"/><path d="M22 50Q24 72 40 80Q34 60 40 46Z" fill="#e8c9a8"/><circle cx="32" cy="58" r="3" fill="#333"/>',
+  anomalo:'<g fill="#e08a5f"><ellipse cx="40" cy="36" rx="7" ry="12" transform="rotate(-60 40 36)"/><ellipse cx="54" cy="34" rx="7" ry="12" transform="rotate(-70 54 34)"/><ellipse cx="68" cy="36" rx="6" ry="10" transform="rotate(-80 68 36)"/><ellipse cx="40" cy="64" rx="7" ry="12" transform="rotate(60 40 64)"/><ellipse cx="54" cy="66" rx="7" ry="12" transform="rotate(70 54 66)"/><ellipse cx="68" cy="64" rx="6" ry="10" transform="rotate(80 68 64)"/></g><ellipse cx="52" cy="50" rx="32" ry="12" fill="#c46b4a"/><path d="M84 50L96 38V62Z" fill="#c46b4a"/><path d="M24 44Q8 40 10 26M24 56Q8 60 10 74" stroke="#a9502f" stroke-width="5" fill="none" stroke-linecap="round"/><circle cx="26" cy="40" r="4" fill="#333"/><circle cx="26" cy="60" r="4" fill="#333"/>',
+  dunkle:'<path d="M22 50Q40 28 76 40L94 28L90 50L94 72L76 60Q40 72 22 50Z" fill="#7a8b98"/><path d="M60 36L66 26L70 38Z" fill="#6a7a86"/><path d="M12 52Q16 30 44 32L46 66Q18 72 12 52Z" fill="#4c5a66"/><path d="M12 54L34 56" stroke="#f3f0e6" stroke-width="3" stroke-linecap="round"/><circle cx="30" cy="42" r="4" fill="#f3f0e6"/><circle cx="30" cy="42" r="2" fill="#222"/>',
+  megalodon:'<path d="M44 30L52 12L60 34Z" fill="#6f8fa6"/><path d="M8 52Q30 26 70 36L84 20L82 42L96 50L82 58L84 78L70 64Q30 74 8 52Z" fill="#6f8fa6"/><path d="M8 52Q30 60 70 60Q30 72 8 52Z" fill="#dfe8ee"/><path d="M10 50L30 52L10 58Z" fill="#8b1e2b"/><path d="M12 50l3 3 3-3 3 3 3-3 3 3M12 57l3-3 3 3 3-3 3 3" stroke="#fff" stroke-width="1.6" fill="none"/><circle cx="28" cy="42" r="3" fill="#222"/>',
+  mosasaur:'<ellipse cx="44" cy="62" rx="10" ry="4" fill="#4e7a67" transform="rotate(30 44 62)"/><ellipse cx="68" cy="60" rx="9" ry="4" fill="#4e7a67" transform="rotate(30 68 60)"/><path d="M6 48Q20 40 40 42Q66 40 84 48L96 36L92 52L96 66L84 56Q60 62 40 58Q20 58 6 52Z" fill="#5f8f7a"/><path d="M6 50L24 50" stroke="#2f4f42" stroke-width="2"/><circle cx="22" cy="45" r="2.5" fill="#222"/>',
+  plesio:'<g fill="#5f8252"><ellipse cx="46" cy="78" rx="12" ry="4" transform="rotate(30 46 78)"/><ellipse cx="72" cy="78" rx="12" ry="4" transform="rotate(30 72 78)"/></g><ellipse cx="60" cy="66" rx="26" ry="14" fill="#7a9e6b"/><path d="M40 62Q30 30 22 18" stroke="#7a9e6b" stroke-width="9" fill="none" stroke-linecap="round"/><ellipse cx="20" cy="16" rx="8" ry="5" fill="#7a9e6b"/><circle cx="19" cy="14" r="1.8" fill="#222"/><path d="M84 62L98 66L84 72Z" fill="#7a9e6b"/>',
+  ichthyo:'<path d="M50 36L58 20L64 40Z" fill="#6c8fb3"/><path d="M6 50L26 46Q50 30 76 44L90 28L88 50L92 72L76 56Q50 68 26 54Z" fill="#6c8fb3"/><ellipse cx="46" cy="60" rx="10" ry="4" fill="#557aa0" transform="rotate(30 46 60)"/><circle cx="32" cy="46" r="5" fill="#fff"/><circle cx="32" cy="46" r="2.8" fill="#222"/>',
+  eurypterid:'<path d="M34 36L14 30Q10 50 18 60L34 46Z" fill="#b8744f"/><path d="M66 36L86 30Q90 50 82 60L66 46Z" fill="#b8744f"/><path d="M50 20Q70 22 68 44L62 70L56 84L50 96L44 84L38 70L32 44Q30 22 50 20Z" fill="#9b5f43"/><g stroke="#7a4631" stroke-width="2"><path d="M34 42H66M35 50H65M37 58H63M39 66H61M42 74H58"/></g><path d="M40 22L30 8M60 22L70 8" stroke="#7a4631" stroke-width="3" stroke-linecap="round"/><circle cx="42" cy="28" r="2.5" fill="#222"/><circle cx="58" cy="28" r="2.5" fill="#222"/>',
+  crinoid:'<path d="M50 96V46" stroke="#b07aa1" stroke-width="6" stroke-dasharray="4 2"/><g stroke="#d58fbf" stroke-width="5" fill="none" stroke-linecap="round"><path d="M50 44Q30 30 26 10"/><path d="M50 44Q40 24 42 6"/><path d="M50 44Q60 24 58 6"/><path d="M50 44Q70 30 74 10"/><path d="M50 44Q24 40 14 24"/><path d="M50 44Q76 40 86 24"/></g><ellipse cx="50" cy="46" rx="8" ry="6" fill="#b07aa1"/>',
+  grasshopper:'<path d="M30 58L18 76M40 60L36 78" stroke="#4f8a2a" stroke-width="3" stroke-linecap="round"/><ellipse cx="54" cy="52" rx="32" ry="10" fill="#7cc04a"/><path d="M60 50L84 36L90 66" stroke="#5a9a34" stroke-width="6" fill="none" stroke-linejoin="round" stroke-linecap="round"/><ellipse cx="22" cy="50" rx="10" ry="9" fill="#6aae3e"/><circle cx="18" cy="47" r="3" fill="#2a4a1a"/><path d="M16 42Q8 22 2 14M20 42Q16 22 14 10" stroke="#4f8a2a" stroke-width="1.8" fill="none"/>',
+  longhorn:'<path d="M44 22Q24 4 8 16M56 22Q76 4 92 16" stroke="#222" stroke-width="2.5" fill="none" stroke-linecap="round"/><path d="M34 50L20 44M34 62L18 66M66 50L80 44M66 62L82 66M40 74L32 88M60 74L68 88" stroke="#222" stroke-width="3" stroke-linecap="round"/><ellipse cx="50" cy="60" rx="16" ry="26" fill="#1f2328"/><path d="M50 36V86" stroke="#000" stroke-width="1.5"/><g fill="#f4f4f4"><circle cx="43" cy="52" r="2.5"/><circle cx="57" cy="58" r="2.5"/><circle cx="44" cy="68" r="2.5"/><circle cx="57" cy="76" r="2"/><circle cx="56" cy="46" r="2"/></g><ellipse cx="50" cy="30" rx="10" ry="8" fill="#1f2328"/>',
+  stag:'<path d="M32 58L16 52M32 70L16 76M68 58L84 52M68 70L84 76M38 84L30 96M62 84L70 96" stroke="#2a1a10" stroke-width="3.5" stroke-linecap="round"/><ellipse cx="50" cy="68" rx="20" ry="24" fill="#5a3418"/><path d="M50 46V92" stroke="#2a1a10" stroke-width="2"/><rect x="36" y="34" width="28" height="16" rx="6" fill="#3e2410"/><path d="M40 36Q28 18 38 6Q36 20 46 30Z" fill="#3e2410"/><path d="M60 36Q72 18 62 6Q64 20 54 30Z" fill="#3e2410"/><ellipse cx="43" cy="62" rx="4" ry="10" fill="#7a4a26"/>',
+  stick:'<path d="M30 50L20 30M30 50L22 70M50 50L46 28M50 50L48 72M68 50L74 30M68 50L76 72" stroke="#7a5a30" stroke-width="2.5" stroke-linecap="round"/><path d="M10 50H90" stroke="#8a6a3a" stroke-width="6" stroke-linecap="round"/><path d="M10 50L2 44M10 50L2 54" stroke="#7a5a30" stroke-width="1.8"/><circle cx="12" cy="49" r="1.5" fill="#222"/>',
+  dung:'<circle cx="30" cy="62" r="22" fill="#8a6a44"/><circle cx="24" cy="56" r="4" fill="#a8845a"/><path d="M58 60L48 54M58 70L46 76M80 58L90 50M80 70L90 78" stroke="#1c2a22" stroke-width="3" stroke-linecap="round"/><ellipse cx="70" cy="64" rx="15" ry="13" fill="#2a4a3a"/><path d="M70 51V77" stroke="#1c2a22" stroke-width="1.5"/><ellipse cx="54" cy="62" rx="6" ry="6" fill="#1c2a22"/>',
+  whaleshark:'<path d="M84 50L98 34L96 50L98 66Z" fill="#3a5a7a"/><path d="M46 38L54 24L60 38Z" fill="#3a5a7a"/><path d="M6 52Q20 34 60 38Q84 42 88 50Q84 60 60 64Q20 68 6 52Z" fill="#3a5a7a"/><path d="M6 52Q30 58 60 60Q30 68 6 52Z" fill="#dfe8ee"/><g fill="#e8f2ff"><circle cx="30" cy="46" r="1.8"/><circle cx="40" cy="42" r="1.8"/><circle cx="48" cy="48" r="1.8"/><circle cx="58" cy="44" r="1.8"/><circle cx="66" cy="50" r="1.8"/><circle cx="36" cy="52" r="1.6"/><circle cx="74" cy="46" r="1.6"/></g><path d="M8 52H22" stroke="#1f3448" stroke-width="2"/><circle cx="16" cy="46" r="1.8" fill="#111"/>',
+  ray:'<path d="M50 64L52 96" stroke="#5a6a7a" stroke-width="3" stroke-linecap="round"/><path d="M50 20Q70 30 94 46Q70 56 50 66Q30 56 6 46Q30 30 50 20Z" fill="#7a8a9a"/><circle cx="44" cy="34" r="2.2" fill="#222"/><circle cx="56" cy="34" r="2.2" fill="#222"/><path d="M40 50Q50 56 60 50" stroke="#5a6a7a" stroke-width="2" fill="none"/>',
+  anemone:'<g stroke="#f08ab8" stroke-width="6" stroke-linecap="round" fill="none"><path d="M36 60Q26 44 20 40"/><path d="M42 58Q38 38 34 26"/><path d="M50 58V22"/><path d="M58 58Q62 38 66 26"/><path d="M64 60Q74 44 80 40"/><path d="M40 60Q30 54 24 56"/><path d="M60 60Q70 54 76 56"/></g><path d="M30 92Q28 70 34 60H66Q72 70 70 92Z" fill="#c05a8a"/>',
+  hermit:'<circle cx="60" cy="50" r="26" fill="#e8b88a"/><path d="M60 50m0-6a6 6 0 1 1-6 6a12 12 0 0 1 12-12a18 18 0 0 1 18 18" fill="none" stroke="#b8845a" stroke-width="3"/><path d="M40 62Q28 58 22 66" stroke="#e0603a" stroke-width="5" stroke-linecap="round" fill="none"/><ellipse cx="18" cy="66" rx="7" ry="5" fill="#e0603a"/><path d="M38 72L28 82M44 74L38 88" stroke="#e0603a" stroke-width="3.5" stroke-linecap="round"/><path d="M36 54L30 40M40 54L38 40" stroke="#e0603a" stroke-width="2.5"/><circle cx="30" cy="38" r="2.5" fill="#222"/><circle cx="38" cy="38" r="2.5" fill="#222"/>',
+  urchin:'<path d="M68.0 54.0L88.0 54.0M67.1 59.6L86.1 65.7M64.6 64.6L80.7 76.3M60.6 68.6L72.3 84.7M55.6 71.1L61.7 90.1M50.0 72.0L50.0 92.0M44.4 71.1L38.3 90.1M39.4 68.6L27.7 84.7M35.4 64.6L19.3 76.3M32.9 59.6L13.9 65.7M32.0 54.0L12.0 54.0M32.9 48.4L13.9 42.3M35.4 43.4L19.3 31.7M39.4 39.4L27.7 23.3M44.4 36.9L38.3 17.9M50.0 36.0L50.0 16.0M55.6 36.9L61.7 17.9M60.6 39.4L72.3 23.3M64.6 43.4L80.7 31.7M67.1 48.4L86.1 42.3" stroke="#4a1f5a" stroke-width="3" stroke-linecap="round"/><circle cx="50" cy="54" r="21" fill="#6a2f7a"/><circle cx="44" cy="48" r="5" fill="#8a4f9a"/>',
+  sailfish:'<path d="M30 46Q46 8 72 42Z" fill="#3a6ac8"/><path d="M82 50L98 36L94 50L98 64Z" fill="#2a4a8a"/><path d="M20 50Q40 38 70 42Q86 46 86 50Q86 56 70 58Q40 62 20 50Z" fill="#3a6ac8"/><path d="M20 50L0 46L20 52Z" fill="#2a4a8a"/><path d="M24 52Q46 58 72 56Q46 62 24 52Z" fill="#dfe8ee"/><circle cx="28" cy="48" r="2" fill="#111"/>',
+  horseshoe:'<path d="M50 70L52 98" stroke="#6a5a3a" stroke-width="4" stroke-linecap="round"/><path d="M28 58Q50 50 72 58L66 74Q50 70 34 74Z" fill="#7a6a44"/><path d="M14 56Q14 18 50 18Q86 18 86 56Q70 50 50 58Q30 50 14 56Z" fill="#8a7a52"/><path d="M50 22V56" stroke="#6a5a3a" stroke-width="2"/><circle cx="36" cy="34" r="2.2" fill="#222"/><circle cx="64" cy="34" r="2.2" fill="#222"/>',
+  coelacanth:'<path d="M80 50L96 38L92 50L96 62Z" fill="#3a5a8a"/><g fill="#3a5a8a"><ellipse cx="40" cy="72" rx="8" ry="4" transform="rotate(30 40 72)"/><ellipse cx="60" cy="72" rx="8" ry="4" transform="rotate(-20 60 72)"/><ellipse cx="46" cy="28" rx="8" ry="4" transform="rotate(-20 46 28)"/></g><path d="M10 50Q20 30 50 32Q76 34 82 50Q76 66 50 68Q20 70 10 50Z" fill="#3a5a8a"/><g fill="#dfe8ff"><circle cx="34" cy="44" r="1.6"/><circle cx="46" cy="52" r="1.6"/><circle cx="58" cy="42" r="1.6"/><circle cx="64" cy="56" r="1.6"/><circle cx="52" cy="40" r="1.4"/></g><circle cx="20" cy="46" r="2.6" fill="#fff"/><circle cx="20" cy="46" r="1.3" fill="#111"/>',
+  archelon:'<g fill="#6a8a6a"><ellipse cx="24" cy="30" rx="16" ry="6" transform="rotate(-30 24 30)"/><ellipse cx="76" cy="30" rx="16" ry="6" transform="rotate(30 76 30)"/><ellipse cx="30" cy="80" rx="10" ry="5" transform="rotate(30 30 80)"/><ellipse cx="70" cy="80" rx="10" ry="5" transform="rotate(-30 70 80)"/></g><ellipse cx="50" cy="54" rx="26" ry="30" fill="#7a6a4a"/><path d="M50 26V84M30 44H70M28 62H72" stroke="#5a4a32" stroke-width="2.5"/><ellipse cx="50" cy="18" rx="9" ry="8" fill="#6a8a6a"/><circle cx="46" cy="16" r="1.6" fill="#222"/><circle cx="54" cy="16" r="1.6" fill="#222"/>',
+  belemnite:'<path d="M60 40L96 48L60 58Z" fill="#c8b8a0"/><g stroke="#9a5a4a" stroke-width="3" stroke-linecap="round" fill="none"><path d="M28 44Q14 36 6 40"/><path d="M28 48Q12 48 4 50"/><path d="M28 52Q14 60 6 58"/><path d="M28 56Q18 66 10 66"/></g><ellipse cx="46" cy="49" rx="20" ry="11" fill="#b87a6a"/><circle cx="34" cy="46" r="2.4" fill="#222"/>',
+  trike:'<path d="M84 58L98 66L84 66Z" fill="#6fa35a"/><g fill="#5a8a48"><rect x="42" y="68" width="8" height="18" rx="3"/><rect x="66" y="68" width="8" height="18" rx="3"/></g><ellipse cx="60" cy="60" rx="27" ry="16" fill="#6fa35a"/><circle cx="30" cy="48" r="17" fill="#9ccc7a"/><ellipse cx="22" cy="58" rx="13" ry="9" fill="#6fa35a"/><path d="M22 50L2 38L20 45Z M30 45L16 28L27 42Z M12 56L4 52L12 60Z" fill="#f3ead2"/><circle cx="24" cy="54" r="2.2" fill="#222"/>',
+  stego:'<g fill="#e07a3a"><path d="M30 52L36 34L42 52Z"/><path d="M42 50L49 28L56 50Z"/><path d="M56 50L63 30L70 52Z"/><path d="M69 54L75 38L80 56Z"/></g><path d="M80 60Q92 58 98 50L96 66Q88 68 80 68Z" fill="#c9a24a"/><path d="M92 54L99 46M94 60L100 58" stroke="#e07a3a" stroke-width="3" stroke-linecap="round"/><g fill="#a8843a"><rect x="34" y="70" width="7" height="16" rx="3"/><rect x="62" y="70" width="7" height="16" rx="3"/></g><ellipse cx="52" cy="62" rx="30" ry="14" fill="#c9a24a"/><path d="M26 62Q18 64 12 68" stroke="#c9a24a" stroke-width="9" stroke-linecap="round"/><ellipse cx="11" cy="68" rx="8" ry="5" fill="#c9a24a"/><circle cx="8" cy="67" r="1.6" fill="#222"/>',
+  ankylo:'<path d="M78 64Q90 62 94 56" stroke="#8a7a5a" stroke-width="7" fill="none" stroke-linecap="round"/><circle cx="95" cy="55" r="6" fill="#6b5d42"/><g fill="#6b5d42"><rect x="30" y="68" width="8" height="14" rx="3"/><rect x="62" y="68" width="8" height="14" rx="3"/></g><path d="M20 68Q24 40 52 40Q80 40 84 68Z" fill="#8a7a5a"/><g fill="#d9cfb2"><path d="M30 50L28 42L36 46Z"/><path d="M44 43L44 34L50 41Z"/><path d="M60 42L62 33L66 42Z"/><path d="M74 48L80 42L78 52Z"/></g><g fill="#6b5d42"><circle cx="40" cy="56" r="3"/><circle cx="52" cy="52" r="3"/><circle cx="64" cy="56" r="3"/><circle cx="52" cy="62" r="3"/></g><ellipse cx="16" cy="66" rx="9" ry="6" fill="#8a7a5a"/><circle cx="13" cy="64" r="1.6" fill="#222"/>',
+  raptor:'<path d="M60 52Q80 50 98 42" stroke="#4f7fa8" stroke-width="7" fill="none" stroke-linecap="round"/><path d="M44 60L40 80L34 86M54 60L58 80L64 86" stroke="#3a6a90" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/><ellipse cx="50" cy="54" rx="16" ry="10" fill="#4f7fa8"/><path d="M36 50Q28 40 22 36" stroke="#4f7fa8" stroke-width="7" stroke-linecap="round"/><path d="M8 34Q14 26 26 30L28 38Q16 40 8 36Z" fill="#4f7fa8"/><circle cx="20" cy="32" r="1.8" fill="#222"/><path d="M40 58L34 66" stroke="#3a6a90" stroke-width="3" stroke-linecap="round"/><path d="M54 46Q62 40 70 44" stroke="#8fc0e0" stroke-width="3" fill="none"/>',
+  spino:'<path d="M34 50Q52 12 76 48Z" fill="#d9704a"/><path d="M72 58Q88 60 98 70" stroke="#6a8a5a" stroke-width="8" fill="none" stroke-linecap="round"/><g fill="#56744a"><rect x="42" y="64" width="8" height="20" rx="3"/><rect x="60" y="64" width="8" height="20" rx="3"/></g><ellipse cx="55" cy="58" rx="22" ry="12" fill="#6a8a5a"/><path d="M36 54Q26 48 20 46" stroke="#6a8a5a" stroke-width="8" stroke-linecap="round"/><path d="M2 46L22 40L24 50L4 50Z" fill="#6a8a5a"/><circle cx="18" cy="43" r="1.6" fill="#222"/>',
+  ptero:'<path d="M50 48L6 30L22 52Z" fill="#b87a5a"/><path d="M50 48L94 30L78 52Z" fill="#b87a5a"/><ellipse cx="50" cy="54" rx="8" ry="12" fill="#9a6245"/><path d="M52 42L46 30L24 36L46 36Z" fill="#9a6245"/><path d="M48 32L62 20L54 34Z" fill="#e0a070"/><circle cx="46" cy="33" r="1.6" fill="#222"/>',
+  diplo:'<path d="M66 58Q84 60 99 72" stroke="#8a9ab0" stroke-width="7" fill="none" stroke-linecap="round"/><g fill="#6f7f96"><rect x="40" y="62" width="8" height="22" rx="3"/><rect x="60" y="62" width="8" height="22" rx="3"/></g><ellipse cx="54" cy="58" rx="20" ry="13" fill="#8a9ab0"/><path d="M40 52Q28 30 16 18" stroke="#8a9ab0" stroke-width="8" fill="none" stroke-linecap="round"/><ellipse cx="13" cy="16" rx="8" ry="5" fill="#8a9ab0"/><circle cx="10" cy="15" r="1.5" fill="#222"/>',
+  duckbill:'<path d="M64 60Q84 64 96 78" stroke="#7aa05a" stroke-width="8" fill="none" stroke-linecap="round"/><g fill="#5f8446"><path d="M50 66L46 88L54 88Z"/><path d="M62 66L64 88L70 88Z"/></g><ellipse cx="56" cy="58" rx="16" ry="14" fill="#7aa05a"/><path d="M46 50Q38 38 32 30" stroke="#7aa05a" stroke-width="9" stroke-linecap="round"/><path d="M34 24Q44 8 52 12Q46 18 38 28Z" fill="#d86a4a"/><path d="M14 30Q22 20 36 24L38 34Q24 36 14 34Z" fill="#7aa05a"/><path d="M14 31L5 33L14 35Z" fill="#e8c878"/><circle cx="28" cy="28" r="1.6" fill="#222"/>',
+  pachy:'<path d="M60 58Q80 60 96 70" stroke="#b08a6a" stroke-width="7" fill="none" stroke-linecap="round"/><g stroke="#8a6a4e" stroke-width="5" stroke-linecap="round" fill="none"><path d="M48 64L44 86"/><path d="M58 64L62 86"/></g><ellipse cx="52" cy="58" rx="14" ry="12" fill="#b08a6a"/><path d="M42 52Q34 46 30 42" stroke="#b08a6a" stroke-width="8" stroke-linecap="round"/><path d="M10 40Q12 22 30 24Q38 30 34 42Q22 48 10 44Z" fill="#b08a6a"/><path d="M12 36Q14 20 30 22Q34 26 32 30Q20 26 12 36Z" fill="#8a6a4e"/><circle cx="18" cy="38" r="1.8" fill="#222"/>',
+  iguano:'<path d="M60 62Q80 66 94 82" stroke="#6f9a8a" stroke-width="8" fill="none" stroke-linecap="round"/><g stroke="#557a6c" stroke-width="6" stroke-linecap="round"><path d="M48 70L46 90"/><path d="M60 70L62 90"/></g><ellipse cx="54" cy="60" rx="15" ry="16" fill="#6f9a8a"/><path d="M44 48Q38 36 34 30" stroke="#6f9a8a" stroke-width="9" stroke-linecap="round"/><path d="M16 26Q22 18 36 22L38 32Q24 34 16 30Z" fill="#6f9a8a"/><circle cx="26" cy="25" r="1.7" fill="#222"/><path d="M44 58L34 62" stroke="#557a6c" stroke-width="4" stroke-linecap="round"/><path d="M34 62L30 55L37 60Z" fill="#f3ead2"/>',
+  allo:'<path d="M60 52Q80 54 98 64" stroke="#b86a4a" stroke-width="9" fill="none" stroke-linecap="round"/><g stroke="#8f4f36" stroke-width="7" stroke-linecap="round"><path d="M46 62L42 88"/><path d="M58 62L62 88"/></g><ellipse cx="52" cy="54" rx="18" ry="12" fill="#b86a4a"/><path d="M38 50Q30 42 26 38" stroke="#b86a4a" stroke-width="10" stroke-linecap="round"/><path d="M4 36Q10 24 30 28L32 42Q16 46 4 40Z" fill="#b86a4a"/><path d="M4 40L30 38" stroke="#6a2a1a" stroke-width="2"/><path d="M20 28L24 20L27 28Z" fill="#6a2a1a"/><circle cx="20" cy="32" r="1.8" fill="#222"/><path d="M40 58L34 64" stroke="#8f4f36" stroke-width="3" stroke-linecap="round"/>',
+  mercury:'<defs><radialGradient id="gMe" cx="35%" cy="32%"><stop offset="0" stop-color="#cfcac4"/><stop offset="1" stop-color="#6e6a66"/></radialGradient></defs><circle cx="50" cy="50" r="26" fill="url(#gMe)"/><g fill="#8a857f"><circle cx="42" cy="44" r="4.5"/><circle cx="58" cy="58" r="5.5"/><circle cx="60" cy="40" r="3"/><circle cx="44" cy="62" r="3"/></g>',
+  venus:'<defs><radialGradient id="gVe" cx="35%" cy="32%"><stop offset="0" stop-color="#fbe6a8"/><stop offset="1" stop-color="#c9953f"/></radialGradient></defs><circle cx="50" cy="50" r="30" fill="url(#gVe)"/><path d="M26 44Q50 36 74 44M24 56Q50 50 76 58M32 68Q50 64 68 70" stroke="rgba(255,255,255,.45)" stroke-width="3" fill="none" stroke-linecap="round"/>',
+  earth:'<defs><radialGradient id="gEa" cx="35%" cy="32%"><stop offset="0" stop-color="#7cc4ff"/><stop offset="1" stop-color="#1f5fa8"/></radialGradient></defs><circle cx="50" cy="50" r="32" fill="url(#gEa)"/><g fill="#4caf50"><path d="M32 34Q44 26 52 36Q48 48 38 46Q30 44 32 34Z"/><path d="M56 52Q70 48 74 60Q66 74 56 68Q52 60 56 52Z"/><path d="M28 60Q36 58 38 68Q32 72 26 66Z"/></g><path d="M30 28Q40 22 50 26M58 38Q68 34 76 40" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" opacity=".85"/>',
+  mars:'<defs><radialGradient id="gMa" cx="35%" cy="32%"><stop offset="0" stop-color="#f09060"/><stop offset="1" stop-color="#9c3a22"/></radialGradient></defs><circle cx="50" cy="50" r="28" fill="url(#gMa)"/><ellipse cx="50" cy="25" rx="10" ry="4" fill="#fff" opacity=".9"/><g fill="#8a3420" opacity=".6"><ellipse cx="42" cy="52" rx="8" ry="4"/><ellipse cx="60" cy="62" rx="6" ry="3"/></g>',
+  jupiter:'<defs><clipPath id="cJu"><circle cx="50" cy="50" r="38"/></clipPath></defs><g clip-path="url(#cJu)"><rect width="100" height="100" fill="#ecd8b6"/><rect y="22" width="100" height="8" fill="#c9a07a"/><rect y="36" width="100" height="7" fill="#b98a5e"/><rect y="50" width="100" height="9" fill="#c9a07a"/><rect y="66" width="100" height="6" fill="#b98a5e"/><ellipse cx="62" cy="60" rx="8" ry="5" fill="#c2553a"/></g>',
+  saturn:'<defs><radialGradient id="gSa" cx="35%" cy="32%"><stop offset="0" stop-color="#f6e2b0"/><stop offset="1" stop-color="#c9a060"/></radialGradient></defs><ellipse cx="50" cy="52" rx="46" ry="12" fill="none" stroke="#c9b27a" stroke-width="6"/><circle cx="50" cy="50" r="23" fill="url(#gSa)"/><path d="M30 44Q50 40 70 44M28 54Q50 50 72 54" stroke="#b8904e" stroke-width="2" fill="none" opacity=".6"/><path d="M4 52A46 12 0 0 0 96 52" fill="none" stroke="#e6d09a" stroke-width="6"/>',
+  uranus:'<ellipse cx="50" cy="50" rx="7" ry="42" fill="none" stroke="#b8e8ee" stroke-width="3" opacity=".8"/><defs><radialGradient id="gUr" cx="35%" cy="32%"><stop offset="0" stop-color="#c8f4f8"/><stop offset="1" stop-color="#4fa8b8"/></radialGradient></defs><circle cx="50" cy="50" r="26" fill="url(#gUr)"/>',
+  neptune:'<defs><radialGradient id="gNe" cx="35%" cy="32%"><stop offset="0" stop-color="#7aa0ff"/><stop offset="1" stop-color="#1f3f98"/></radialGradient></defs><circle cx="50" cy="50" r="28" fill="url(#gNe)"/><ellipse cx="58" cy="56" rx="7" ry="4" fill="#15285e"/><path d="M34 40Q46 36 58 40" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round" opacity=".8"/>',
+  pluto:'<defs><radialGradient id="gPl" cx="35%" cy="32%"><stop offset="0" stop-color="#e4d0b8"/><stop offset="1" stop-color="#9a8068"/></radialGradient></defs><circle cx="50" cy="50" r="20" fill="url(#gPl)"/><path d="M50 56C44 50 42 46 46 44C49 43 50 46 50 46C50 46 51 43 54 44C58 46 56 50 50 56Z" fill="#f6eee2"/>',
+  mammoth:'<g fill="#6a4a30"><rect x="30" y="64" width="10" height="24" rx="4"/><rect x="62" y="64" width="10" height="24" rx="4"/></g><path d="M24 70Q20 36 54 34Q84 34 84 64Q84 72 72 72H34Q24 72 24 70Z" fill="#8a5e3a"/><path d="M30 40Q30 22 44 22Q54 24 52 40Z" fill="#8a5e3a"/><path d="M28 50Q14 58 16 80Q18 86 22 84Q22 64 34 58Z" fill="#7a5232"/><path d="M30 60Q16 72 26 84Q38 90 42 80" stroke="#f3ead2" stroke-width="5" fill="none" stroke-linecap="round"/><circle cx="36" cy="44" r="2" fill="#222"/><path d="M60 40L62 50M68 42L70 52M76 46L77 56" stroke="#6a4a30" stroke-width="2"/>',
+  sabertooth:'<path d="M78 52Q92 46 96 36" stroke="#c89a5a" stroke-width="5" fill="none" stroke-linecap="round"/><g fill="#b08040"><rect x="36" y="62" width="8" height="24" rx="3"/><rect x="66" y="62" width="8" height="24" rx="3"/></g><ellipse cx="56" cy="56" rx="26" ry="14" fill="#c89a5a"/><circle cx="28" cy="46" r="15" fill="#c89a5a"/><path d="M18 34L20 26L26 32Z M34 32L38 25L40 33Z" fill="#b08040"/><ellipse cx="22" cy="52" rx="8" ry="6" fill="#e8c890"/><path d="M18 54L17 70L21 56Z M26 55L26 70L29 56Z" fill="#fff"/><circle cx="24" cy="42" r="2" fill="#222"/><circle cx="33" cy="43" r="2" fill="#222"/><circle cx="21" cy="49" r="1.8" fill="#6a3a2a"/>',
+  woollyrhino:'<g fill="#5a4a3a"><rect x="32" y="62" width="10" height="22" rx="4"/><rect x="64" y="62" width="10" height="22" rx="4"/></g><ellipse cx="58" cy="56" rx="30" ry="18" fill="#7a6650"/><path d="M36 48Q22 46 12 58Q14 68 30 68Z" fill="#7a6650"/><path d="M14 56L2 36L20 52Z" fill="#e8dcc0"/><path d="M24 50L20 38L28 48Z" fill="#e8dcc0"/><circle cx="30" cy="54" r="2" fill="#222"/><path d="M50 40L52 48M60 38L62 46M70 40L71 48M80 44L80 52" stroke="#5a4a3a" stroke-width="2"/>',
+  sloth:'<path d="M62 70Q80 78 84 90" stroke="#8a6a4a" stroke-width="9" fill="none" stroke-linecap="round"/><g fill="#6a4e36"><rect x="40" y="74" width="10" height="16" rx="4"/><rect x="56" y="74" width="10" height="16" rx="4"/></g><ellipse cx="52" cy="58" rx="20" ry="24" fill="#8a6a4a"/><ellipse cx="46" cy="28" rx="11" ry="10" fill="#8a6a4a"/><ellipse cx="40" cy="31" rx="6" ry="5" fill="#a8845e"/><circle cx="44" cy="26" r="1.8" fill="#222"/><path d="M36 50Q22 44 20 34" stroke="#8a6a4a" stroke-width="8" stroke-linecap="round" fill="none"/><path d="M20 34L14 26M20 34L18 24M20 34L22 25" stroke="#f3ead2" stroke-width="2.5" stroke-linecap="round"/>',
+  glypto:'<path d="M84 64Q94 62 96 54" stroke="#6a5a42" stroke-width="7" stroke-linecap="round" fill="none"/><g fill="#5a4a34"><rect x="28" y="66" width="10" height="16" rx="4"/><rect x="64" y="66" width="10" height="16" rx="4"/></g><path d="M20 70Q20 30 52 30Q84 30 84 70Z" fill="#9a8460"/><g fill="none" stroke="#7a6444" stroke-width="2"><path d="M20 58H84M24 46H80M34 36H70"/><path d="M36 30V70M52 30V70M68 30V70"/></g><ellipse cx="14" cy="66" rx="8" ry="7" fill="#6a5a42"/><circle cx="11" cy="64" r="1.6" fill="#222"/>',
+  moa:'<g stroke="#6a5a3a" stroke-width="4" stroke-linecap="round"><path d="M50 70L46 94M58 70L62 94"/></g><ellipse cx="56" cy="58" rx="20" ry="16" fill="#7a5a3a"/><path d="M44 50Q38 30 36 14" stroke="#7a5a3a" stroke-width="8" fill="none" stroke-linecap="round"/><ellipse cx="38" cy="12" rx="7" ry="5" fill="#7a5a3a"/><path d="M32 11L22 14L32 15Z" fill="#d8c090"/><circle cx="37" cy="10" r="1.5" fill="#222"/>',
+  direwolf:'<path d="M78 52Q90 46 94 60" stroke="#6a6a72" stroke-width="7" fill="none" stroke-linecap="round"/><g fill="#55555c"><rect x="36" y="62" width="7" height="24" rx="3"/><rect x="66" y="62" width="7" height="24" rx="3"/></g><ellipse cx="56" cy="56" rx="24" ry="12" fill="#6a6a72"/><path d="M36 52Q28 38 20 40L6 50L20 56Q30 60 38 60Z" fill="#6a6a72"/><path d="M20 40L22 28L28 38Z" fill="#55555c"/><circle cx="20" cy="46" r="2" fill="#ffd060"/><circle cx="7" cy="50" r="1.8" fill="#222"/>',
+  elk:'<g fill="#8a5a36"><rect x="36" y="62" width="6" height="26" rx="3"/><rect x="64" y="62" width="6" height="26" rx="3"/></g><ellipse cx="54" cy="58" rx="22" ry="12" fill="#a8703e"/><path d="M36 54Q30 40 28 34" stroke="#a8703e" stroke-width="9" stroke-linecap="round"/><ellipse cx="24" cy="36" rx="9" ry="6" fill="#a8703e"/><circle cx="24" cy="34" r="1.6" fill="#222"/><path d="M28 30Q10 24 4 8M16 26L6 22M12 20L6 12M30 30Q40 16 60 10M42 20L44 8M52 14L56 4M38 24L48 18" stroke="#d8c090" stroke-width="4" fill="none" stroke-linecap="round"/>',
+  cavebear:'<g fill="#4e3422"><rect x="32" y="64" width="12" height="20" rx="4"/><rect x="62" y="64" width="12" height="20" rx="4"/></g><ellipse cx="56" cy="56" rx="28" ry="18" fill="#6a4a30"/><circle cx="22" cy="36" r="5" fill="#6a4a30"/><circle cx="34" cy="36" r="5" fill="#6a4a30"/><circle cx="26" cy="48" r="14" fill="#6a4a30"/><ellipse cx="16" cy="54" rx="7" ry="5" fill="#8a6a4a"/><circle cx="12" cy="52" r="2" fill="#222"/><circle cx="24" cy="45" r="2" fill="#222"/>',
+  giganto:'<g fill="#b8602a"><rect x="38" y="70" width="10" height="20" rx="4"/><rect x="54" y="70" width="10" height="20" rx="4"/></g><path d="M32 46Q20 60 22 80M70 46Q82 60 80 80" stroke="#c8702e" stroke-width="9" stroke-linecap="round" fill="none"/><ellipse cx="51" cy="56" rx="20" ry="22" fill="#c8702e"/><circle cx="51" cy="26" r="13" fill="#c8702e"/><ellipse cx="51" cy="30" rx="8" ry="7" fill="#e8a870"/><circle cx="46" cy="24" r="1.8" fill="#222"/><circle cx="56" cy="24" r="1.8" fill="#222"/><path d="M47 33Q51 35 55 33" stroke="#6a3a1a" stroke-width="1.5" fill="none"/>',
+  paracera:'<g fill="#7a7266"><rect x="40" y="62" width="9" height="28" rx="3"/><rect x="66" y="62" width="9" height="28" rx="3"/></g><ellipse cx="60" cy="54" rx="26" ry="15" fill="#958c7e"/><path d="M40 50Q28 36 24 26" stroke="#958c7e" stroke-width="12" stroke-linecap="round"/><path d="M8 24Q12 14 26 18L30 30Q16 32 8 28Z" fill="#958c7e"/><circle cx="20" cy="21" r="1.8" fill="#222"/><path d="M26 16L28 10L30 17Z" fill="#7a7266"/>',
+  titanoboa:'<path d="M88 30Q98 44 84 50Q62 58 40 50Q18 42 12 58Q8 74 30 78Q56 82 78 74" stroke="#5a7a3a" stroke-width="12" fill="none" stroke-linecap="round"/><path d="M88 30Q98 44 84 50Q62 58 40 50Q18 42 12 58Q8 74 30 78Q56 82 78 74" stroke="#8aaa5a" stroke-width="3" fill="none" stroke-dasharray="3 7"/><ellipse cx="84" cy="24" rx="10" ry="7" fill="#5a7a3a"/><circle cx="86" cy="21" r="1.8" fill="#ffd24a"/><path d="M93 26L100 25M93 28L100 30" stroke="#c0302a" stroke-width="1.5"/>',
+  zhuque:'<path d="M58 60Q80 70 96 92Q78 84 64 78Q80 92 84 98Q62 88 52 72Z" fill="#ff8a3d"/><path d="M60 62Q86 64 98 76Q80 76 64 70Z" fill="#ffc23d"/><path d="M40 50Q20 30 8 34Q24 44 30 58Z" fill="#e0402a"/><path d="M52 48Q72 20 92 22Q76 34 64 56Z" fill="#e0402a"/><ellipse cx="50" cy="58" rx="14" ry="12" fill="#d8302a"/><path d="M44 48Q42 34 34 30Q30 36 36 44Z" fill="#d8302a"/><circle cx="34" cy="30" r="8" fill="#d8302a"/><path d="M26 30L18 33L26 34Z" fill="#ffc23d"/><circle cx="32" cy="28" r="1.6" fill="#222"/><path d="M36 22Q40 12 46 14Q40 18 38 24Z" fill="#ffc23d"/>',
+  qinglong:'<path d="M88 84Q70 90 60 76Q52 62 66 54Q80 46 72 34Q64 22 48 30" stroke="#2f9a7a" stroke-width="13" fill="none" stroke-linecap="round"/><path d="M88 84Q70 90 60 76Q52 62 66 54Q80 46 72 34Q64 22 48 30" stroke="#ffd24a" stroke-width="3" fill="none" stroke-dasharray="2 6"/><path d="M50 22Q34 16 20 22L14 32L28 36Q42 36 50 34Z" fill="#2f9a7a"/><path d="M14 32L6 30M14 34L6 38" stroke="#2f9a7a" stroke-width="2"/><path d="M36 20L40 8M30 20L27 10" stroke="#ffd24a" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="30" cy="26" r="2" fill="#ffd24a"/><path d="M18 34Q10 44 8 54M22 35Q18 46 20 56" stroke="#bfe8dc" stroke-width="1.5" fill="none"/><circle cx="92" cy="86" r="4" fill="#2f9a7a"/>',
+  baihu:'<path d="M78 52Q94 46 96 34" stroke="#f4f4f0" stroke-width="7" fill="none" stroke-linecap="round"/><path d="M84 42L90 44M88 36L94 38" stroke="#333" stroke-width="2"/><g fill="#e0e0da"><rect x="36" y="62" width="9" height="24" rx="3"/><rect x="66" y="62" width="9" height="24" rx="3"/></g><ellipse cx="56" cy="56" rx="26" ry="14" fill="#f4f4f0"/><path d="M48 44L46 56M58 43L57 56M68 45L68 58M40 48L40 58" stroke="#333" stroke-width="3" stroke-linecap="round"/><circle cx="28" cy="46" r="15" fill="#f4f4f0"/><path d="M16 36L18 28L24 34Z M32 32L38 26L40 34Z" fill="#e0e0da"/><path d="M22 38L26 42M34 38L30 42M28 34V38" stroke="#333" stroke-width="2"/><ellipse cx="22" cy="52" rx="7" ry="5" fill="#fff"/><circle cx="24" cy="44" r="2" fill="#4aa8ff"/><circle cx="33" cy="45" r="2" fill="#4aa8ff"/><circle cx="20" cy="50" r="1.8" fill="#e08a8a"/>',
+  xuanwu:'<g fill="#4a5a4a"><ellipse cx="26" cy="74" rx="8" ry="5"/><ellipse cx="74" cy="74" rx="8" ry="5"/></g><path d="M18 66Q20 32 52 30Q82 32 84 66Z" fill="#2f3f4a"/><g stroke="#5a7a8a" stroke-width="2" fill="none"><path d="M52 32V66M28 50H78"/><path d="M36 36L44 50L36 64M68 36L60 50L68 64"/></g><ellipse cx="12" cy="60" rx="8" ry="7" fill="#4a5a4a"/><circle cx="9" cy="58" r="1.6" fill="#222"/><path d="M84 64Q98 56 90 44Q80 34 66 26Q54 20 46 14" stroke="#3a8a6a" stroke-width="6" fill="none" stroke-linecap="round"/><ellipse cx="42" cy="12" rx="7" ry="5" fill="#3a8a6a"/><circle cx="40" cy="11" r="1.4" fill="#ffd24a"/>',
+  ninetail:'<g transform="rotate(-80 64 58)"><ellipse cx="78" cy="58" rx="16" ry="5" fill="#f0a040"/><circle cx="93" cy="58" r="3.6" fill="#fff4e0"/></g><g transform="rotate(-64 64 58)"><ellipse cx="78" cy="58" rx="16" ry="5" fill="#f0a040"/><circle cx="93" cy="58" r="3.6" fill="#fff4e0"/></g><g transform="rotate(-48 64 58)"><ellipse cx="78" cy="58" rx="16" ry="5" fill="#f0a040"/><circle cx="93" cy="58" r="3.6" fill="#fff4e0"/></g><g transform="rotate(-32 64 58)"><ellipse cx="78" cy="58" rx="16" ry="5" fill="#f0a040"/><circle cx="93" cy="58" r="3.6" fill="#fff4e0"/></g><g transform="rotate(-16 64 58)"><ellipse cx="78" cy="58" rx="16" ry="5" fill="#f0a040"/><circle cx="93" cy="58" r="3.6" fill="#fff4e0"/></g><g transform="rotate(0 64 58)"><ellipse cx="78" cy="58" rx="16" ry="5" fill="#f0a040"/><circle cx="93" cy="58" r="3.6" fill="#fff4e0"/></g><g transform="rotate(16 64 58)"><ellipse cx="78" cy="58" rx="16" ry="5" fill="#f0a040"/><circle cx="93" cy="58" r="3.6" fill="#fff4e0"/></g><g transform="rotate(32 64 58)"><ellipse cx="78" cy="58" rx="16" ry="5" fill="#f0a040"/><circle cx="93" cy="58" r="3.6" fill="#fff4e0"/></g><g transform="rotate(48 64 58)"><ellipse cx="78" cy="58" rx="16" ry="5" fill="#f0a040"/><circle cx="93" cy="58" r="3.6" fill="#fff4e0"/></g><g fill="#e08a30"><rect x="40" y="64" width="6" height="22" rx="3"/><rect x="58" y="64" width="6" height="22" rx="3"/></g><ellipse cx="52" cy="60" rx="18" ry="10" fill="#f0a040"/><ellipse cx="44" cy="64" rx="8" ry="5" fill="#fff4e0"/><circle cx="30" cy="48" r="11" fill="#f0a040"/><path d="M22 40L20 26L30 38Z M34 38L40 26L40 40Z" fill="#f0a040"/><path d="M22 38L22 30L27 37Z M36 37L39 30L38 38Z" fill="#6a3a1a"/><path d="M20 50L8 54L22 56Z" fill="#fff4e0"/><circle cx="9" cy="54" r="1.6" fill="#222"/><path d="M24 46L28 47M32 46L36 45" stroke="#222" stroke-width="2" stroke-linecap="round"/>',
+  qilin:'<g fill="#3a8a7a"><rect x="38" y="62" width="6" height="24" rx="3"/><rect x="64" y="62" width="6" height="24" rx="3"/></g><path d="M36 88Q40 80 44 88M62 88Q66 80 70 88" stroke="#ff8a3d" stroke-width="3" fill="none"/><path d="M76 54Q92 48 94 38Q88 50 76 58Z" fill="#ffd24a"/><ellipse cx="56" cy="56" rx="22" ry="12" fill="#4aa88a"/><g fill="#3a8a7a"><circle cx="46" cy="54" r="3"/><circle cx="56" cy="52" r="3"/><circle cx="66" cy="54" r="3"/><circle cx="51" cy="60" r="3"/><circle cx="61" cy="60" r="3"/></g><path d="M38 52Q30 40 28 32" stroke="#4aa88a" stroke-width="9" stroke-linecap="round"/><path d="M34 26Q40 36 36 48Q44 40 42 28Z" fill="#ffd24a"/><path d="M12 30Q16 22 30 24L32 34Q20 36 12 34Z" fill="#4aa88a"/><path d="M26 24L28 10" stroke="#ffd24a" stroke-width="3" stroke-linecap="round"/><circle cx="22" cy="28" r="1.8" fill="#222"/><path d="M12 34Q8 42 12 46" stroke="#ffd24a" stroke-width="2" fill="none"/>',
+  phoenix:'<path d="M56 62Q70 80 94 80Q80 88 60 76Z" fill="#b078ff"/><path d="M58 60Q76 70 98 64Q86 76 62 70Z" fill="#4ab0e8"/><path d="M58 58Q78 56 96 44Q90 60 62 66Z" fill="#3ac07a"/><circle cx="92" cy="80" r="4" fill="#ffd24a"/><circle cx="96" cy="64" r="4" fill="#ffd24a"/><circle cx="94" cy="44" r="4" fill="#ffd24a"/><path d="M44 52Q30 30 14 30Q28 42 36 60Z" fill="#ff8a3d"/><ellipse cx="50" cy="60" rx="13" ry="11" fill="#ff5a5a"/><path d="M44 52Q42 38 36 32" stroke="#ff5a5a" stroke-width="7" stroke-linecap="round" fill="none"/><circle cx="34" cy="30" r="7" fill="#ff5a5a"/><path d="M28 30L20 32L28 34Z" fill="#ffd24a"/><circle cx="33" cy="28" r="1.5" fill="#222"/><path d="M36 24Q38 14 44 12M34 24Q32 16 34 10" stroke="#ffd24a" stroke-width="2" fill="none"/>',
+  pixiu:'<g fill="#c9a030"><rect x="36" y="62" width="10" height="22" rx="4"/><rect x="64" y="62" width="10" height="22" rx="4"/></g><path d="M78 54Q92 50 94 40Q90 34 86 42" stroke="#e8c050" stroke-width="7" fill="none" stroke-linecap="round"/><ellipse cx="58" cy="56" rx="24" ry="14" fill="#e8c050"/><path d="M52 46Q60 26 76 30Q66 36 62 48Z" fill="#fff3c0"/><circle cx="28" cy="46" r="16" fill="#d8a830"/><circle cx="28" cy="48" r="11" fill="#e8c050"/><path d="M26 32L29 20L32 32Z" fill="#fff3c0"/><circle cx="24" cy="46" r="2" fill="#222"/><circle cx="33" cy="46" r="2" fill="#222"/><path d="M22 54Q28 58 34 54" stroke="#8a5a10" stroke-width="2" fill="none"/>',
+  nian:'<g fill="#a02a2a"><rect x="30" y="70" width="12" height="18" rx="4"/><rect x="58" y="70" width="12" height="18" rx="4"/></g><ellipse cx="50" cy="62" rx="28" ry="18" fill="#c83a2a"/><path d="M32 26Q22 12 26 4Q32 14 38 22Z M68 26Q78 12 74 4Q68 14 62 22Z" fill="#ffd24a"/><circle cx="50" cy="40" r="22" fill="#d8482a"/><circle cx="42" cy="36" r="5" fill="#fff"/><circle cx="58" cy="36" r="5" fill="#fff"/><circle cx="42" cy="36" r="2.4" fill="#222"/><circle cx="58" cy="36" r="2.4" fill="#222"/><path d="M36 48Q50 58 64 48Q58 56 50 56Q42 56 36 48Z" fill="#6a1010"/><path d="M40 49L42 55L44 50Z M56 50L58 55L60 49Z" fill="#fff"/><g fill="#ffd24a"><circle cx="30" cy="62" r="3"/><circle cx="70" cy="62" r="3"/></g>',
+  zhulong:'<path d="M90 88Q68 94 58 80Q50 66 64 58Q78 50 70 38Q62 26 46 32" stroke="#c0302a" stroke-width="12" fill="none" stroke-linecap="round"/><path d="M52 24Q36 18 22 24L16 34L30 38Q44 38 52 36Z" fill="#c0302a"/><circle cx="30" cy="28" r="8" fill="#ffe27d" opacity=".45"/><circle cx="30" cy="28" r="4" fill="#fff3a0"/><path d="M38 22L42 12M30 22L28 13" stroke="#ffb020" stroke-width="3" stroke-linecap="round"/><path d="M16 34L8 36" stroke="#c0302a" stroke-width="2"/><circle cx="92" cy="88" r="4" fill="#c0302a"/>',
+  bifang:'<path d="M52 66L52 94M52 94L46 96M52 94L58 96" stroke="#3a3a3a" stroke-width="3" stroke-linecap="round"/><path d="M60 56Q84 50 96 60Q80 64 62 64Z" fill="#2a6ab0"/><ellipse cx="52" cy="58" rx="16" ry="11" fill="#3a8ad0"/><g fill="#e0402a"><circle cx="46" cy="56" r="2.5"/><circle cx="56" cy="54" r="2.5"/><circle cx="52" cy="62" r="2.5"/></g><path d="M40 52Q34 36 32 24" stroke="#3a8ad0" stroke-width="6" fill="none" stroke-linecap="round"/><circle cx="32" cy="22" r="6" fill="#3a8ad0"/><path d="M28 22L12 26L28 25Z" fill="#fff"/><circle cx="31" cy="20" r="1.4" fill="#222"/><path d="M34 16Q38 6 34 2Q42 8 40 16Z" fill="#ff8a3d"/>',
+  moth:'<g fill="#c9b48a" stroke="#8a7650" stroke-width="1.5"><path d="M50 40Q24 14 10 30Q8 50 46 52Z"/><path d="M50 40Q76 14 90 30Q92 50 54 52Z"/><path d="M48 52Q24 58 22 76Q36 80 50 60Z"/><path d="M52 52Q76 58 78 76Q64 80 50 60Z"/></g><g fill="#8a7650"><circle cx="28" cy="34" r="5"/><circle cx="72" cy="34" r="5"/></g><ellipse cx="50" cy="54" rx="5" ry="18" fill="#7a6644"/><circle cx="50" cy="34" r="5" fill="#6a5838"/><path d="M48 30Q40 18 32 16M52 30Q60 18 68 16" stroke="#6a5838" stroke-width="2" fill="none"/>',
+  hornet:'<g fill="#d8eefa" stroke="#9cc6de" stroke-width="1.5"><ellipse cx="30" cy="40" rx="20" ry="8" transform="rotate(-20 30 40)"/><ellipse cx="70" cy="40" rx="20" ry="8" transform="rotate(20 70 40)"/></g><ellipse cx="50" cy="66" rx="14" ry="22" fill="#f0a020"/><g fill="#2a1a0a"><rect x="36" y="58" width="28" height="5"/><rect x="37" y="68" width="26" height="5"/><rect x="40" y="78" width="20" height="4"/></g><path d="M50 88L50 96" stroke="#2a1a0a" stroke-width="3" stroke-linecap="round"/><ellipse cx="50" cy="42" rx="10" ry="8" fill="#6a3a10"/><circle cx="50" cy="26" r="11" fill="#f0a020"/><g fill="#3a1a0a"><ellipse cx="43" cy="24" rx="3.5" ry="5"/><ellipse cx="57" cy="24" rx="3.5" ry="5"/></g><path d="M46 16Q40 6 34 6M54 16Q60 6 66 6" stroke="#3a1a0a" stroke-width="2" fill="none"/>',
+  stinkbug:'<path d="M34 42L18 34M66 42L82 34M34 56L14 60M66 56L86 60M38 70L24 86M62 70L76 86" stroke="#3a5a2a" stroke-width="3" stroke-linecap="round"/><path d="M26 40Q50 30 74 40L66 76Q50 92 34 76Z" fill="#5a8a3a"/><path d="M36 42L50 66L64 42Z" fill="#78aa4a"/><path d="M40 38Q50 20 60 38Z" fill="#4a7a2a"/><g fill="#2a2a2a"><circle cx="44" cy="32" r="2"/><circle cx="56" cy="32" r="2"/></g><path d="M46 26Q40 14 34 10M54 26Q60 14 66 10" stroke="#3a5a2a" stroke-width="2" fill="none"/>',
+  molecricket:'<path d="M40 64L34 80M54 66L52 82M66 64L74 80" stroke="#6a4a2a" stroke-width="3" stroke-linecap="round"/><ellipse cx="60" cy="56" rx="30" ry="12" fill="#9a6a3a"/><path d="M52 48Q66 44 84 50" stroke="#b88a5a" stroke-width="2" fill="none"/><ellipse cx="30" cy="52" rx="14" ry="12" fill="#8a5a2a"/><path d="M20 60L10 66L14 72L22 68L18 76L26 74Z" fill="#6a4a2a"/><ellipse cx="18" cy="46" rx="8" ry="7" fill="#7a5028"/><circle cx="15" cy="44" r="2" fill="#222"/><path d="M12 40Q4 30 2 22" stroke="#6a4a2a" stroke-width="1.8" fill="none"/><path d="M88 54L98 50M88 58L98 62" stroke="#6a4a2a" stroke-width="2" stroke-linecap="round"/>',
+  orca:'<path d="M86 52L98 38L94 52L98 66Z" fill="#1a1a22"/><path d="M8 54Q12 34 44 32Q76 32 90 52Q70 68 40 68Q14 68 8 54Z" fill="#1a1a22"/><path d="M50 34L58 8L64 34Z" fill="#1a1a22"/><path d="M12 58Q30 66 56 62Q40 72 18 66Z" fill="#fff"/><ellipse cx="28" cy="44" rx="7" ry="3.5" fill="#fff"/><path d="M62 50Q70 48 76 52Q70 56 62 54Z" fill="#dfe6ee"/><path d="M36 64L30 78L44 66Z" fill="#1a1a22"/><circle cx="19" cy="47" r="1.6" fill="#8a8a9a"/>',
+  flyingfish:'<path d="M0 82Q12 76 24 82T48 82T72 82T96 82V100H0Z" fill="#4aa0d8"/><path d="M46 46Q30 22 14 20Q26 36 40 52Z" fill="#9ad4f4" stroke="#5aa8d8" stroke-width="1.5"/><path d="M78 46L96 34L90 48L98 62Z" fill="#3a78b8"/><ellipse cx="50" cy="48" rx="32" ry="9" fill="#3a78b8"/><path d="M20 49Q50 56 80 49Q50 60 20 49Z" fill="#cfe8f8"/><path d="M52 48Q64 22 86 16Q76 34 60 54Z" fill="#bfe4fa" stroke="#5aa8d8" stroke-width="1.5"/><circle cx="26" cy="46" r="2.2" fill="#fff"/><circle cx="26" cy="46" r="1.1" fill="#222"/>',
+  manatee:'<path d="M80 54Q98 44 98 60Q98 74 80 64Z" fill="#8a9098"/><ellipse cx="52" cy="58" rx="34" ry="18" fill="#9aa2aa"/><g stroke="#8a929a" stroke-width="1.2" fill="none"><path d="M44 42Q48 58 44 74M62 42Q66 58 62 74"/></g><ellipse cx="20" cy="58" rx="14" ry="12" fill="#9aa2aa"/><ellipse cx="12" cy="62" rx="7" ry="6" fill="#b4bac0"/><circle cx="18" cy="52" r="1.8" fill="#222"/><g fill="#6a7078"><circle cx="9" cy="61" r=".9"/><circle cx="12" cy="64" r=".9"/><circle cx="15" cy="61" r=".9"/></g><path d="M36 70Q34 82 42 84Q46 78 44 70Z" fill="#8a9098"/>',
+  seasnake:'<g fill="#bfe4fa"><circle cx="30" cy="30" r="3"/><circle cx="40" cy="20" r="2"/><circle cx="70" cy="34" r="2.5"/></g><path d="M90 70Q78 84 66 70Q54 56 42 70Q30 84 20 68" stroke="#2a3a90" stroke-width="10" fill="none" stroke-linecap="round"/><path d="M90 70Q78 84 66 70Q54 56 42 70Q30 84 20 68" stroke="#eef2ff" stroke-width="10" fill="none" stroke-dasharray="5 8"/><path d="M88 70L98 58L98 80Z" fill="#2a3a90"/><ellipse cx="15" cy="63" rx="9" ry="6" fill="#2a3a90"/><circle cx="12" cy="61" r="1.6" fill="#fff"/><path d="M6 65L1 67" stroke="#e04a4a" stroke-width="1.5"/>',
+  salmon:'<path d="M80 50L98 36L94 52L98 68Z" fill="#c05a4a"/><path d="M8 52Q20 34 50 34Q76 36 84 52Q76 66 50 68Q20 68 8 52Z" fill="#d86a58"/><path d="M12 56Q40 66 80 56Q60 70 36 68Q18 66 12 56Z" fill="#f0c0a8"/><path d="M44 36L52 24L60 36Z" fill="#c05a4a"/><path d="M66 38L70 32L74 40Z" fill="#c05a4a"/><g fill="#8a3a2a"><circle cx="40" cy="44" r="1.5"/><circle cx="50" cy="42" r="1.5"/><circle cx="60" cy="44" r="1.5"/><circle cx="46" cy="48" r="1.5"/><circle cx="56" cy="48" r="1.5"/><circle cx="68" cy="46" r="1.5"/></g><circle cx="20" cy="48" r="2.4" fill="#fff"/><circle cx="20" cy="48" r="1.2" fill="#222"/><path d="M8 54L16 54" stroke="#8a3a2a" stroke-width="1.5"/>',
+  pliosaur:'<path d="M78 54L98 46L96 62Z" fill="#4a6a7a"/><g fill="#4a6a7a"><path d="M48 46Q40 34 34 32Q42 44 52 48Z"/><path d="M70 46Q70 34 64 30Q66 42 74 48Z"/></g><ellipse cx="60" cy="54" rx="26" ry="13" fill="#5a7a8a"/><path d="M40 60Q60 68 80 58" stroke="#c8d8e0" stroke-width="3" fill="none"/><path d="M4 50Q10 38 36 42L40 58Q16 64 4 56Z" fill="#5a7a8a"/><path d="M4 54L36 52" stroke="#2a3a44" stroke-width="2"/><g fill="#fff"><path d="M10 52L12 56L14 52Z"/><path d="M18 52L20 56L22 52Z"/><path d="M26 52L28 56L30 52Z"/></g><circle cx="26" cy="46" r="2" fill="#222"/><g fill="#4a6a7a"><path d="M46 62Q36 78 30 80Q44 76 54 64Z"/><path d="M72 62Q70 78 64 84Q78 76 80 62Z"/></g>',
+  helicoprion:'<path d="M80 50L98 34L92 52L98 68Z" fill="#6a7a8a"/><path d="M6 54Q16 34 48 34Q76 36 86 52Q74 66 48 68Q18 68 6 54Z" fill="#7a8a9a"/><path d="M44 36L54 16L60 36Z" fill="#6a7a8a"/><path d="M14 60Q40 70 80 58Q56 72 30 68Z" fill="#dfe6ee"/><circle cx="18" cy="47" r="2" fill="#222"/><circle cx="23" cy="66" r="11" fill="#f4f0e4" stroke="#b0a890" stroke-width="1.5"/><path d="M22 66a2 2 0 0 1 4 0a4 4 0 0 1 -8 0a6 6 0 0 1 12 0a8 8 0 0 1 -16 0" stroke="#8a7a5a" stroke-width="1.5" fill="none"/><g fill="#fff" stroke="#b0a890" stroke-width=".8"><path d="M13 58L9 54L16 55Z"/><path d="M21 55L21 50L25 55Z"/><path d="M31 58L35 55L33 61Z"/></g>',
+  pikaia:'<path d="M0 84Q12 80 24 84T48 84T72 84T96 84V100H0Z" fill="#9ad0e8" opacity=".6"/><path d="M14 50Q30 36 50 48Q70 60 88 46Q84 58 70 62Q50 66 30 56Q20 54 14 50Z" fill="#e8c8a8" stroke="#c8987a" stroke-width="1.5"/><path d="M22 49Q40 44 50 52Q66 62 84 50" stroke="#c8987a" stroke-width="1.2" fill="none"/><g stroke="#d4a888" stroke-width="1"><path d="M30 45L32 55M38 45L40 57M46 47L47 58M54 52L54 62M62 56L61 64M70 56L69 63M78 52L76 60"/></g><path d="M14 50L6 44M14 50L6 51" stroke="#c8987a" stroke-width="1.5" stroke-linecap="round"/><circle cx="18" cy="48" r="1.3" fill="#6a4a3a"/>',
+  blastoid:'<path d="M0 90H100V100H0Z" fill="#c8b48a"/><path d="M50 90Q46 70 50 56" stroke="#a88a5a" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M50 58Q30 50 34 34Q40 18 50 16Q60 18 66 34Q70 50 50 58Z" fill="#d8b878"/><g stroke="#a8884a" stroke-width="2" fill="none"><path d="M50 16V58M50 16Q38 30 42 54M50 16Q62 30 58 54M50 16Q30 28 36 46M50 16Q70 28 64 46"/></g><circle cx="50" cy="16" r="3" fill="#a8884a"/><g fill="#a88a5a"><circle cx="40" cy="84" r="1.6"/><circle cx="60" cy="80" r="1.6"/></g>',
+  graptolite:'<rect x="6" y="10" width="88" height="80" rx="10" fill="#4a4a52"/><g stroke="#e8e0cc" stroke-width="2.5" fill="none" stroke-linecap="round"><path d="M50 24Q30 40 20 76"/><path d="M50 24Q70 40 80 76"/></g><g fill="#e8e0cc"><path d="M44 30L38 28L41 34Z"/><path d="M38 38L32 36L35 42Z"/><path d="M33 47L27 45L30 51Z"/><path d="M29 56L23 54L26 60Z"/><path d="M25 65L19 63L22 69Z"/><path d="M56 30L62 28L59 34Z"/><path d="M62 38L68 36L65 42Z"/><path d="M67 47L73 45L70 51Z"/><path d="M71 56L77 54L74 60Z"/><path d="M75 65L81 63L78 69Z"/></g><circle cx="50" cy="22" r="3" fill="#e8e0cc"/>',
+  deino:'<g fill="#7a6e62"><rect x="36" y="60" width="11" height="28" rx="4"/><rect x="66" y="60" width="11" height="28" rx="4"/></g><ellipse cx="60" cy="52" rx="28" ry="18" fill="#958a7c"/><path d="M88 50Q94 56 92 64" stroke="#958a7c" stroke-width="3" fill="none"/><circle cx="30" cy="42" r="15" fill="#958a7c"/><ellipse cx="38" cy="40" rx="7" ry="11" fill="#857a6c"/><path d="M20 46Q12 60 16 76" stroke="#958a7c" stroke-width="7" fill="none" stroke-linecap="round"/><path d="M26 54Q22 66 32 72" stroke="#f4ecd8" stroke-width="4" fill="none" stroke-linecap="round"/><circle cx="24" cy="38" r="1.8" fill="#222"/>',
+  terrorbird:'<g stroke="#b88a3a" stroke-width="4" stroke-linecap="round" fill="none"><path d="M52 64L48 88L42 90M48 88L54 90"/><path d="M62 64L66 88L60 90M66 88L72 90"/></g><path d="M78 50Q96 48 98 62Q86 58 78 58Z" fill="#6a5a4a"/><ellipse cx="60" cy="54" rx="22" ry="14" fill="#7a6a58"/><path d="M50 50Q60 56 72 52" stroke="#5a4a3a" stroke-width="2" fill="none"/><path d="M42 50Q34 36 34 24" stroke="#7a6a58" stroke-width="10" fill="none" stroke-linecap="round"/><ellipse cx="32" cy="20" rx="10" ry="9" fill="#7a6a58"/><path d="M26 14Q6 14 4 24Q6 30 10 28Q12 24 26 26Z" fill="#e0b040"/><circle cx="32" cy="17" r="2" fill="#222"/>',
+  thylacoleo:'<path d="M80 52Q94 56 96 70" stroke="#b08a5a" stroke-width="6" fill="none" stroke-linecap="round"/><g fill="#98744a"><rect x="38" y="62" width="10" height="24" rx="4"/><rect x="66" y="62" width="10" height="24" rx="4"/></g><ellipse cx="58" cy="56" rx="24" ry="14" fill="#b08a5a"/><g stroke="#7a5a3a" stroke-width="3" stroke-linecap="round"><path d="M60 44V54M68 45V54M76 48V56"/></g><circle cx="30" cy="48" r="14" fill="#b08a5a"/><path d="M20 38L18 28L28 35ZM36 35L42 27L42 38Z" fill="#98744a"/><ellipse cx="22" cy="54" rx="8" ry="6" fill="#c8a478"/><circle cx="26" cy="44" r="2" fill="#222"/><circle cx="17" cy="51" r="2" fill="#3a2a1a"/><path d="M19 58L19 62M24 58L24 62" stroke="#fff" stroke-width="2"/>',
+  shortbear:'<g fill="#5a4030"><rect x="34" y="58" width="11" height="30" rx="4"/><rect x="68" y="58" width="11" height="30" rx="4"/></g><ellipse cx="58" cy="50" rx="28" ry="17" fill="#6e4e38"/><circle cx="22" cy="28" r="5" fill="#6e4e38"/><circle cx="34" cy="27" r="5" fill="#6e4e38"/><circle cx="28" cy="40" r="14" fill="#6e4e38"/><ellipse cx="18" cy="46" rx="8" ry="6" fill="#9a7a5a"/><circle cx="12" cy="44" r="2.4" fill="#222"/><circle cx="26" cy="36" r="2" fill="#222"/>',
+  aurochs:'<path d="M82 50Q92 56 92 70" stroke="#3a2a22" stroke-width="3" fill="none"/><g fill="#2e221c"><rect x="38" y="60" width="9" height="26" rx="3"/><rect x="68" y="60" width="9" height="26" rx="3"/></g><ellipse cx="60" cy="52" rx="26" ry="15" fill="#3e2e24"/><path d="M50 40Q60 34 74 40" stroke="#c8b08a" stroke-width="3" fill="none"/><path d="M14 38Q12 50 18 58Q28 62 34 54L36 38Q26 32 14 38Z" fill="#3e2e24"/><path d="M16 38Q6 30 10 18M32 36Q42 28 38 16" stroke="#e8dcc0" stroke-width="4" fill="none" stroke-linecap="round"/><circle cx="20" cy="44" r="1.8" fill="#fff"/><circle cx="30" cy="44" r="1.8" fill="#fff"/><ellipse cx="24" cy="56" rx="7" ry="4" fill="#5a4a3e"/>',
+  oviraptor:'<path d="M60 50Q80 46 96 56Q80 58 62 58Z" fill="#8a5aa0"/><g stroke="#6a4080" stroke-width="4" stroke-linecap="round" fill="none"><path d="M50 64L46 88L40 90"/><path d="M58 64L62 88L68 90"/></g><ellipse cx="54" cy="56" rx="16" ry="12" fill="#a070b8"/><path d="M42 50Q36 38 32 30" stroke="#a070b8" stroke-width="8" stroke-linecap="round"/><path d="M20 26Q24 14 36 18Q40 26 34 32Q24 34 20 26Z" fill="#a070b8"/><path d="M24 20Q26 6 34 10Q32 16 30 20Z" fill="#e06a8a"/><path d="M20 26L14 30L22 32Z" fill="#e8c878"/><circle cx="28" cy="24" r="1.8" fill="#222"/><path d="M44 58Q36 62 34 66" stroke="#6a4080" stroke-width="3" stroke-linecap="round" fill="none"/><ellipse cx="32" cy="72" rx="7" ry="9" fill="#f4ecd8" stroke="#c8b898" stroke-width="1.5"/>',
+  ornitho:'<path d="M58 50Q80 50 98 58" stroke="#c8a060" stroke-width="7" fill="none" stroke-linecap="round"/><g stroke="#a8804a" stroke-width="4" stroke-linecap="round" fill="none"><path d="M48 60L42 76L48 90L42 92"/><path d="M58 60L60 76L66 90L72 92"/></g><ellipse cx="52" cy="54" rx="14" ry="10" fill="#d8b070"/><path d="M42 50Q30 34 30 20" stroke="#d8b070" stroke-width="6" fill="none" stroke-linecap="round"/><ellipse cx="28" cy="16" rx="7" ry="5" fill="#d8b070"/><path d="M22 16L10 20L22 19Z" fill="#8a6a3a"/><circle cx="28" cy="14" r="1.6" fill="#222"/><path d="M44 58Q38 62 36 68" stroke="#a8804a" stroke-width="2.5" stroke-linecap="round" fill="none"/>',
+  sun:'<defs><radialGradient id="gSu" cx="45%" cy="40%"><stop offset="0" stop-color="#fff3a0"/><stop offset=".6" stop-color="#ffc030"/><stop offset="1" stop-color="#ff7a1a"/></radialGradient></defs><g stroke="#ffb020" stroke-width="5" stroke-linecap="round"><path d="M50 4V16M50 84V96M4 50H16M84 50H96M17 17L26 26M74 74L83 83M83 17L74 26M26 74L17 83"/></g><circle cx="50" cy="50" r="28" fill="url(#gSu)"/>',
+  moon:'<defs><radialGradient id="gMo" cx="38%" cy="35%"><stop offset="0" stop-color="#f4f2ea"/><stop offset="1" stop-color="#a8a49a"/></radialGradient></defs><circle cx="50" cy="50" r="30" fill="url(#gMo)"/><g fill="#b8b4aa"><circle cx="40" cy="40" r="6"/><circle cx="60" cy="58" r="8"/><circle cx="62" cy="36" r="4"/><circle cx="38" cy="64" r="4"/></g><g fill="#c8c4ba"><circle cx="41" cy="41" r="4"/><circle cx="61" cy="59" r="5.5"/></g>',
+  comet:'<path d="M32 56Q68 10 98 2Q84 32 46 70Z" fill="#9ad4ff" opacity=".5"/><path d="M36 58Q70 24 96 14Q76 40 44 64Z" fill="#dff2ff" opacity=".85"/><circle cx="36" cy="64" r="13" fill="#bfe6ff"/><circle cx="36" cy="64" r="8" fill="#fff"/>',
+  meteor:'<rect x="4" y="4" width="92" height="92" rx="14" fill="#1f2a50"/><g fill="#fff"><circle cx="20" cy="22" r="1.5"/><circle cx="76" cy="70" r="1.5"/><circle cx="84" cy="30" r="1.2"/><circle cx="30" cy="84" r="1.2"/><circle cx="60" cy="86" r="1"/></g><path d="M86 12L34 64" stroke="#ffe8a0" stroke-width="3" stroke-linecap="round" opacity=".55"/><path d="M76 22L34 64" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".85"/><circle cx="32" cy="66" r="8" fill="#ffd24a"/><circle cx="32" cy="66" r="4" fill="#fff"/>',
+  asteroid:'<path d="M22 40Q20 22 40 20Q56 14 70 24Q84 30 80 48Q84 66 68 74Q52 84 36 76Q18 70 20 56Q16 48 22 40Z" fill="#8a7a6a"/><g fill="#6a5c4e"><circle cx="40" cy="36" r="6"/><circle cx="62" cy="56" r="8"/><circle cx="36" cy="60" r="4"/><circle cx="66" cy="34" r="3"/></g><path d="M30 30Q40 24 52 26" stroke="#a89888" stroke-width="3" fill="none" stroke-linecap="round"/>',
+  yinglong:'<path d="M50 44L8 16Q18 40 30 48Z" fill="#e8b040"/><path d="M56 44L94 12Q86 40 70 50Z" fill="#e8b040"/><path d="M14 22L20 32M24 26L28 38M86 20L80 32M76 26L72 38" stroke="#b88a20" stroke-width="2"/><path d="M92 86Q72 94 62 80Q54 66 66 56Q76 48 66 40Q58 32 44 38" stroke="#d8a030" stroke-width="12" fill="none" stroke-linecap="round"/><path d="M46 30Q30 24 18 30L12 40L26 44Q40 44 46 40Z" fill="#d8a030"/><path d="M28 28L24 18M36 28L36 18" stroke="#b88a20" stroke-width="3" stroke-linecap="round"/><circle cx="28" cy="34" r="2" fill="#222"/><path d="M12 40L4 44M14 42L8 48" stroke="#d8a030" stroke-width="2" stroke-linecap="round"/>',
+  baize:'<g fill="#dcdce4"><rect x="38" y="62" width="9" height="24" rx="3"/><rect x="66" y="62" width="9" height="24" rx="3"/></g><path d="M78 54Q94 50 94 38Q88 46 80 48" stroke="#e4e4ee" stroke-width="6" fill="none" stroke-linecap="round"/><ellipse cx="58" cy="56" rx="24" ry="13" fill="#f4f4fa" stroke="#c8c8d8" stroke-width="1.5"/><path d="M40 56Q30 44 26 36" stroke="#c8c8d8" stroke-width="15" stroke-linecap="round"/><path d="M40 56Q30 44 26 36" stroke="#f4f4fa" stroke-width="12" stroke-linecap="round"/><circle cx="26" cy="32" r="13" fill="#f4f4fa" stroke="#c8c8d8" stroke-width="1.5"/><path d="M22 20Q16 8 22 4M32 20Q36 8 30 4" stroke="#6a7ab8" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="21" cy="31" r="2" fill="#222"/><circle cx="31" cy="31" r="2" fill="#222"/><path d="M21 38Q26 44 31 38" stroke="#b8b8c8" stroke-width="2" fill="none"/><g fill="#8a9ad8"><circle cx="54" cy="52" r="2"/><circle cx="64" cy="56" r="2"/><circle cx="72" cy="50" r="2"/></g>',
+  jingwei:'<path d="M0 84Q12 78 24 84T48 84T72 84T96 84V100H0Z" fill="#3a7ab8"/><path d="M58 50Q80 44 96 54Q80 58 60 58Z" fill="#4a4a5a"/><ellipse cx="50" cy="52" rx="16" ry="11" fill="#5a5a6a"/><path d="M52 46Q66 26 84 24Q72 38 60 52Z" fill="#3a3a4a"/><circle cx="34" cy="40" r="10" fill="#e8e0f0"/><path d="M28 34Q34 26 42 34" stroke="#e04a6a" stroke-width="3" fill="none"/><path d="M25 40L12 44L25 44Z" fill="#fff" stroke="#c8c8d8" stroke-width="1"/><path d="M14 44L2 50" stroke="#8a6a3a" stroke-width="2.5" stroke-linecap="round"/><path d="M8 47L6 42M5 48L2 44" stroke="#6a9a3a" stroke-width="2"/><circle cx="32" cy="38" r="1.8" fill="#222"/><path d="M48 62L46 70M54 62L56 70" stroke="#e04a3a" stroke-width="2.5" stroke-linecap="round"/>',
+  kuiniu:'<path d="M78 50Q90 54 90 66" stroke="#4a5a7a" stroke-width="3" fill="none"/><path d="M54 62L54 86M46 88H62" stroke="#3a4a6a" stroke-width="9" stroke-linecap="round"/><ellipse cx="56" cy="50" rx="26" ry="15" fill="#5a6a8a"/><path d="M20 36Q18 48 24 56Q34 60 38 52L40 36Q30 30 20 36Z" fill="#5a6a8a"/><path d="M22 36Q12 28 16 16M36 34Q46 26 42 14" stroke="#e8dcc0" stroke-width="4" fill="none" stroke-linecap="round"/><circle cx="26" cy="42" r="2" fill="#ffd24a"/><circle cx="34" cy="42" r="2" fill="#ffd24a"/><path d="M80 12L70 28H80L70 44" stroke="#ffd24a" stroke-width="3" fill="none" stroke-linejoin="round" stroke-linecap="round"/>',
+  chongming:'<path d="M58 60Q80 72 94 90Q76 84 62 74Z" fill="#ffb020"/><path d="M60 58Q84 60 98 72Q80 74 62 68Z" fill="#e05a2a"/><ellipse cx="52" cy="58" rx="16" ry="13" fill="#e8402a"/><path d="M54 52Q70 28 88 30Q76 44 62 60Z" fill="#c8302a"/><path d="M44 50Q40 36 38 28" stroke="#e8402a" stroke-width="10" stroke-linecap="round"/><circle cx="36" cy="24" r="13" fill="#e8402a"/><path d="M34 12Q36 2 44 4Q40 8 40 12Z" fill="#ffb020"/><path d="M24 24L12 28L24 30Z" fill="#ffd24a"/><circle cx="34" cy="22" r="6" fill="#fff"/><circle cx="31.5" cy="22" r="2" fill="#222"/><circle cx="36.5" cy="22" r="2" fill="#222"/><path d="M48 70L46 84M54 70L56 84" stroke="#b86a2a" stroke-width="3" stroke-linecap="round"/>',
+  termite:'<path d="M40 44L24 34M40 52L22 54M42 60L26 72M60 44L76 34M60 52L78 54M58 60L74 72" stroke="#c8a878" stroke-width="3" stroke-linecap="round"/><ellipse cx="50" cy="70" rx="13" ry="18" fill="#f4e6c8"/><g stroke="#e0caa0" stroke-width="1.5"><path d="M39 64H61M38 72H62M40 80H60"/></g><ellipse cx="50" cy="48" rx="9" ry="8" fill="#f0dcb4"/><ellipse cx="50" cy="30" rx="11" ry="10" fill="#d8a860"/><path d="M44 22Q36 12 30 10M56 22Q64 12 70 10" stroke="#b88a48" stroke-width="2" fill="none"/><path d="M46 38L48 42M54 38L52 42" stroke="#6a4a2a" stroke-width="2.5" stroke-linecap="round"/>',
+  strider:'<rect x="0" y="62" width="100" height="38" fill="#9ad0f0"/><g fill="#e4f4ff"><ellipse cx="14" cy="62" rx="6" ry="1.6"/><ellipse cx="86" cy="62" rx="6" ry="1.6"/><ellipse cx="24" cy="62" rx="5" ry="1.4"/><ellipse cx="78" cy="62" rx="5" ry="1.4"/></g><g stroke="#3a3a3a" stroke-width="2" fill="none" stroke-linecap="round"><path d="M44 50L24 44L14 61"/><path d="M56 50L76 44L86 61"/><path d="M46 54L30 58L24 62"/><path d="M54 54L70 58L78 62"/><path d="M38 50L28 44"/></g><ellipse cx="50" cy="52" rx="16" ry="4" fill="#4a4a4a"/><circle cx="34" cy="50" r="3.5" fill="#4a4a4a"/><circle cx="32" cy="49" r="1.2" fill="#fff"/>',
+  mayfly:'<path d="M44 44Q40 16 56 10Q60 30 52 46Z" fill="#e8f4fa" stroke="#a8c8d8" stroke-width="1.5"/><path d="M48 46Q58 26 70 24Q66 40 54 48Z" fill="#e8f4fa" stroke="#a8c8d8" stroke-width="1.5"/><path d="M58 52Q76 56 86 64" stroke="#c8a060" stroke-width="5" fill="none" stroke-linecap="round"/><g stroke="#a88040" stroke-width="1.2" fill="none"><path d="M86 64Q94 72 99 90M86 64Q96 70 100 80M86 64Q92 76 94 96"/></g><ellipse cx="46" cy="50" rx="12" ry="6" fill="#d8b070"/><circle cx="32" cy="48" r="5" fill="#c89850"/><circle cx="30" cy="46" r="1.6" fill="#222"/><g stroke="#a88040" stroke-width="1.6" stroke-linecap="round"><path d="M40 54L34 66M46 56L44 68M52 55L56 66"/></g>',
+  damsel:'<g fill="#e8f6ff" stroke="#a8d0e8" stroke-width="1.2"><path d="M36 42Q44 22 70 14Q56 30 40 44Z"/><path d="M38 44Q50 28 76 24Q60 36 42 46Z"/></g><path d="M40 48L96 60" stroke="#2a8ad8" stroke-width="4" stroke-linecap="round"/><g stroke="#1a5a98" stroke-width="1"><path d="M52 50V53M62 52V55M72 54V57M82 56V59"/></g><g stroke="#333" stroke-width="1.5" stroke-linecap="round"><path d="M34 50L30 62M38 51L38 63M42 50L46 62"/></g><ellipse cx="36" cy="47" rx="8" ry="5" fill="#2a8ad8"/><ellipse cx="24" cy="46" rx="4" ry="6" fill="#1a6ab8"/><circle cx="23" cy="42" r="2.2" fill="#0a2a4a"/><circle cx="23" cy="50" r="2.2" fill="#0a2a4a"/>',
+  weevil:'<g stroke="#3a2a1a" stroke-width="3" stroke-linecap="round" fill="none"><path d="M48 66L42 82M58 68L58 84M68 66L76 80"/></g><ellipse cx="62" cy="54" rx="24" ry="17" fill="#6a4a8a"/><g fill="#8a6aaa"><circle cx="56" cy="48" r="2"/><circle cx="66" cy="46" r="2"/><circle cx="74" cy="52" r="2"/><circle cx="62" cy="58" r="2"/></g><path d="M30 54Q20 64 14 80" stroke="#5a3a7a" stroke-width="5" fill="none" stroke-linecap="round"/><circle cx="36" cy="50" r="10" fill="#5a3a7a"/><path d="M22 66L12 58" stroke="#5a3a7a" stroke-width="2" stroke-linecap="round"/><circle cx="34" cy="46" r="2" fill="#222"/>',
+  leafbfly:'<path d="M30 20Q76 18 82 58Q80 74 70 86L64 76Q40 74 28 50Q24 34 30 20Z" fill="#b88a4a"/><path d="M30 22Q52 44 68 80" stroke="#7a5a2a" stroke-width="2" fill="none"/><g stroke="#8a6a3a" stroke-width="1.2" fill="none"><path d="M40 34L52 26M46 44L62 34M52 54L70 46M58 64L76 60"/></g><path d="M70 86L76 96" stroke="#7a5a2a" stroke-width="2.5" stroke-linecap="round"/><circle cx="50" cy="52" r="2.5" fill="#6a4a2a" opacity=".6"/><path d="M30 22Q24 14 20 8M32 22Q30 12 30 6" stroke="#4a3a2a" stroke-width="1.6" fill="none"/>',
+  sealion:'<path d="M0 84Q12 78 24 84T48 84T72 84T96 84V100H0Z" fill="#6ab0e0"/><path d="M44 34Q36 60 42 86H90Q96 78 86 72Q66 60 60 34Z" fill="#8a6040"/><path d="M48 60Q34 70 30 82Q44 80 52 70Z" fill="#6a4a2a"/><ellipse cx="52" cy="26" rx="10" ry="8" fill="#8a6040"/><ellipse cx="42" cy="28" rx="7" ry="5" fill="#9a7050"/><circle cx="36" cy="27" r="1.8" fill="#222"/><circle cx="50" cy="23" r="2" fill="#222"/><path d="M58 22L60 18" stroke="#6a4a2a" stroke-width="2" stroke-linecap="round"/><path d="M40 30L32 31M40 31L33 34" stroke="#3a2a1a" stroke-width=".8"/>',
+  tuna:'<path d="M84 50L98 32L94 50L98 68Z" fill="#1a3a6a"/><path d="M6 50Q20 34 50 34Q76 36 88 50Q76 64 50 66Q20 66 6 50Z" fill="#c8d4e0"/><path d="M6 50Q20 34 50 34Q76 36 88 50Q60 44 30 48Q14 50 6 50Z" fill="#1a3a6a"/><path d="M46 36L52 22L58 36Z" fill="#1a3a6a"/><path d="M40 52Q52 58 58 56Q50 50 40 52Z" fill="#8a9ab0"/><g fill="#f0c020"><path d="M64 36L66 32L68 37Z"/><path d="M70 38L72 34L74 39Z"/><path d="M76 40L78 36L80 42Z"/><path d="M64 64L66 68L68 63Z"/><path d="M70 62L72 66L74 61Z"/><path d="M76 60L78 64L80 58Z"/></g><circle cx="18" cy="48" r="2.6" fill="#fff"/><circle cx="18" cy="48" r="1.3" fill="#222"/>',
+  elasmo:'<path d="M0 88Q12 82 24 88T48 88T72 88T96 88V100H0Z" fill="#7ab8e0"/><path d="M80 66L98 60L94 72Z" fill="#4a7a6a"/><g fill="#4a7a6a"><path d="M58 72Q48 86 40 88Q56 86 64 74Z"/><path d="M78 72Q78 86 72 92Q86 84 84 72Z"/><path d="M60 60Q52 50 44 50Q52 58 62 64Z"/></g><ellipse cx="70" cy="66" rx="18" ry="10" fill="#5a8a7a"/><path d="M56 62Q40 50 34 30Q30 16 18 12" stroke="#5a8a7a" stroke-width="6" fill="none" stroke-linecap="round"/><ellipse cx="14" cy="12" rx="7" ry="4.5" fill="#5a8a7a"/><circle cx="12" cy="11" r="1.3" fill="#222"/>',
+  tylo:'<path d="M78 52Q92 40 98 32Q96 52 90 60Q96 70 98 80Q86 68 78 60Z" fill="#3a5a7a"/><g fill="#3a5a7a"><path d="M40 60Q34 72 28 74Q40 72 46 62Z"/><path d="M62 60Q60 72 54 78Q66 72 68 60Z"/></g><path d="M4 50Q14 40 34 42Q60 40 82 52Q66 66 36 64Q14 62 4 54Z" fill="#4a6a8a"/><path d="M8 54Q30 62 70 58Q50 68 26 64Z" fill="#dfe8ee"/><path d="M4 52L30 52" stroke="#1a2a3a" stroke-width="1.8"/><g fill="#fff"><path d="M8 52L9 55L11 52Z"/><path d="M14 52L15 55L17 52Z"/><path d="M20 52L21 55L23 52Z"/></g><circle cx="24" cy="46" r="2" fill="#222"/>',
+  notho:'<path d="M0 88Q12 82 24 88T48 88T72 88T96 88V100H0Z" fill="#7ab8e0"/><path d="M60 58Q80 60 98 72" stroke="#6a8a4a" stroke-width="7" fill="none" stroke-linecap="round"/><g fill="#5a7a3a"><path d="M46 62L40 76L50 74Z"/><path d="M66 62L64 78L74 74Z"/></g><ellipse cx="56" cy="58" rx="16" ry="9" fill="#7a9a5a"/><path d="M42 56Q30 50 22 44" stroke="#7a9a5a" stroke-width="7" stroke-linecap="round"/><path d="M4 40Q10 34 24 40L24 48Q12 48 4 44Z" fill="#7a9a5a"/><g stroke="#fff" stroke-width="1.2"><path d="M7 43L7 46M11 43L11 46M15 43L15 46M19 44L19 47"/></g><circle cx="18" cy="40" r="1.6" fill="#222"/>',
+  basilo:'<path d="M0 88Q12 82 24 88T48 88T72 88T96 88V100H0Z" fill="#7ab8e0"/><path d="M26 50Q50 40 70 52Q84 62 92 58" stroke="#6a7a8a" stroke-width="14" fill="none" stroke-linecap="round"/><path d="M88 58L100 48L98 62L100 72Z" fill="#5a6a7a"/><path d="M30 56Q50 52 66 60" stroke="#c8d0d8" stroke-width="3" fill="none"/><path d="M40 54Q36 64 30 66Q40 64 44 56Z" fill="#5a6a7a"/><path d="M4 48Q10 38 30 42L32 58Q14 60 4 52Z" fill="#6a7a8a"/><path d="M4 50L30 50" stroke="#2a3a44" stroke-width="1.8"/><g fill="#fff"><path d="M8 50L10 53L12 50Z"/><path d="M15 50L17 53L19 50Z"/><path d="M22 50L24 53L26 50Z"/></g><circle cx="22" cy="45" r="1.8" fill="#222"/>',
+  leeds:'<path d="M84 50L98 30L94 50L98 70Z" fill="#6a7a5a"/><path d="M14 44Q30 30 56 32Q80 36 88 50Q78 66 54 68Q30 68 16 58Z" fill="#8a9a6a"/><path d="M4 44L16 44L16 58L4 60Q10 52 4 44Z" fill="#3a3a2a"/><path d="M16 58Q40 66 80 56Q56 70 34 68Z" fill="#dce4c8"/><path d="M54 34L62 20L68 36Z" fill="#6a7a5a"/><g stroke="#6a7a5a" stroke-width="1.5" fill="none"><path d="M24 44Q26 50 24 56M28 43Q30 50 28 57"/></g><circle cx="22" cy="40" r="2" fill="#222"/><g fill="#9ab080"><circle cx="8" cy="36" r="1.5"/><circle cx="4" cy="30" r="1"/><circle cx="10" cy="28" r="1"/></g>',
+  xipha:'<path d="M82 50L98 32L92 50L98 68Z" fill="#3a5a8a"/><path d="M8 46Q22 32 50 34Q76 36 86 50Q76 64 50 66Q22 66 10 58Z" fill="#5a7aaa"/><path d="M10 56Q40 66 80 56Q56 70 30 66Z" fill="#dfe6f0"/><path d="M8 46L22 50L10 58Q4 52 8 46Z" fill="#2a3a5a"/><g fill="#fff"><path d="M11 49L13 53L15 50Z"/><path d="M12 56L14 52L16 55Z"/></g><path d="M54 34L60 22L66 36Z" fill="#3a5a8a"/><circle cx="20" cy="42" r="2.4" fill="#fff"/><circle cx="20" cy="42" r="1.2" fill="#222"/><path d="M38 54Q50 60 56 58Q48 52 38 54Z" fill="#3a5a8a"/>',
+  placo:'<path d="M60 50Q80 44 98 52Q80 60 60 56Z" fill="#8a7a5a"/><path d="M14 52Q16 36 36 34L60 38Q66 48 60 60L36 64Q16 64 14 52Z" fill="#b8a070"/><g stroke="#7a6a44" stroke-width="2" fill="none"><path d="M36 34V64M48 36V62M36 48H60"/></g><path d="M30 60L22 74L28 74L36 62Z" fill="#9a8458"/><circle cx="24" cy="44" r="2.4" fill="#fff"/><circle cx="24" cy="44" r="1.2" fill="#222"/><path d="M14 52L22 54" stroke="#6a5a3a" stroke-width="1.5"/>',
+  camero:'<path d="M0 88Q12 82 24 88T48 88T72 88T96 88V100H0Z" fill="#7ab8e0"/><path d="M30 38L98 18L98 30L30 58Z" fill="#e8d4a8"/><g stroke="#b8945a" stroke-width="2"><path d="M44 34L44 52M56 30L56 47M68 27L68 42M80 23L80 37M90 21L90 32"/></g><g stroke="#c8704a" stroke-width="3" fill="none" stroke-linecap="round"><path d="M20 52Q10 60 6 72M22 54Q16 66 16 78M20 50Q8 52 2 58"/></g><path d="M30 38Q20 40 20 48Q20 56 30 58Z" fill="#c8704a"/><circle cx="26" cy="46" r="2" fill="#222"/>',
+  hallu:'<rect x="0" y="80" width="100" height="20" fill="#d8c8a0"/><g stroke="#c87878" stroke-width="2.5" stroke-linecap="round"><path d="M24 60L22 78M34 58L33 78M44 57L44 78M54 57L55 78M64 58L66 78M74 59L77 78"/></g><g stroke="#8a4a5a" stroke-width="2.5" stroke-linecap="round"><path d="M24 52L20 36M34 50L32 32M44 49L44 30M54 49L56 30M64 50L68 32M74 51L80 34"/></g><path d="M14 58Q50 48 88 56" stroke="#e8a0a0" stroke-width="9" fill="none" stroke-linecap="round"/><circle cx="90" cy="56" r="6" fill="#e8a0a0"/><circle cx="92" cy="55" r="1.4" fill="#222"/>',
+  metrio:'<path d="M0 88Q12 82 24 88T48 88T72 88T96 88V100H0Z" fill="#7ab8e0"/><path d="M72 54Q86 50 92 40Q94 54 90 60Q96 68 96 76Q86 66 72 62Z" fill="#5a7a5a"/><g fill="#5a7a5a"><path d="M44 62Q38 72 32 74Q44 72 50 64Z"/><path d="M64 62Q62 72 56 76Q68 72 70 62Z"/></g><ellipse cx="54" cy="56" rx="22" ry="9" fill="#6a8a5a"/><path d="M4 52Q16 46 36 50L36 60Q16 60 4 56Z" fill="#6a8a5a"/><path d="M4 54L32 55" stroke="#2a3a2a" stroke-width="1.5"/><g fill="#fff"><path d="M8 54L9 57L10 54Z"/><path d="M14 54L15 57L16 54Z"/><path d="M20 55L21 58L22 55Z"/></g><circle cx="32" cy="50" r="2" fill="#222"/><g fill="#4a6a4a"><circle cx="46" cy="52" r="1.6"/><circle cx="54" cy="50" r="1.6"/><circle cx="62" cy="51" r="1.6"/></g>',
+  cavelion:'<path d="M80 52Q94 50 96 64Q96 70 92 72" stroke="#c8a060" stroke-width="5" fill="none" stroke-linecap="round"/><circle cx="92" cy="72" r="3.5" fill="#8a6a3a"/><g fill="#b08a4a"><rect x="38" y="62" width="9" height="24" rx="4"/><rect x="66" y="62" width="9" height="24" rx="4"/></g><ellipse cx="58" cy="54" rx="24" ry="13" fill="#d0aa6a"/><circle cx="24" cy="32" r="4" fill="#c09a5a"/><circle cx="36" cy="31" r="4" fill="#c09a5a"/><circle cx="30" cy="44" r="13" fill="#d0aa6a"/><ellipse cx="30" cy="50" rx="7" ry="5" fill="#e8cc98"/><circle cx="25" cy="41" r="2" fill="#222"/><circle cx="35" cy="41" r="2" fill="#222"/><path d="M28 47L32 47L30 50Z" fill="#6a4a2a"/>',
+  diproto:'<g fill="#6a5a4a"><rect x="30" y="62" width="12" height="22" rx="5"/><rect x="66" y="62" width="12" height="22" rx="5"/></g><ellipse cx="56" cy="54" rx="32" ry="20" fill="#8a7662"/><path d="M26 40L28 32L32 40Z" fill="#7a6652"/><ellipse cx="22" cy="54" rx="14" ry="12" fill="#8a7662"/><ellipse cx="12" cy="58" rx="7" ry="6" fill="#5a4a3a"/><circle cx="20" cy="48" r="2" fill="#222"/>',
+  chalico:'<g stroke="#6a5a48" stroke-width="7" stroke-linecap="round"><path d="M34 52L32 86"/><path d="M68 62L70 86"/></g><path d="M32 86L26 90M32 86L30 92" stroke="#e8dcc0" stroke-width="2.5" stroke-linecap="round"/><path d="M30 44Q56 40 78 56Q80 70 66 70Q44 66 30 58Z" fill="#8a7a64"/><path d="M34 46Q28 32 22 26" stroke="#8a7a64" stroke-width="11" stroke-linecap="round"/><path d="M8 26Q12 18 26 20L28 30Q16 34 8 30Z" fill="#8a7a64"/><circle cx="20" cy="23" r="1.8" fill="#222"/><path d="M24 18L26 12L29 19Z" fill="#7a6a54"/>',
+  camel:'<g stroke="#a88050" stroke-width="5" stroke-linecap="round"><path d="M40 60L38 92M48 60L50 92M68 60L66 92M76 58L80 92"/></g><path d="M36 60Q34 40 50 40Q56 24 64 38Q80 38 82 56Q70 66 50 64Z" fill="#c8a068"/><path d="M38 50Q26 36 26 20" stroke="#c8a068" stroke-width="9" fill="none" stroke-linecap="round"/><path d="M14 18Q16 10 28 14L30 22Q20 26 14 22Z" fill="#c8a068"/><circle cx="22" cy="16" r="1.6" fill="#222"/><path d="M28 12L30 8" stroke="#a88050" stroke-width="3" stroke-linecap="round"/>',
+  entelo:'<g fill="#4a3a32"><rect x="38" y="62" width="8" height="24" rx="3"/><rect x="68" y="62" width="8" height="24" rx="3"/></g><path d="M80 48Q90 50 92 58" stroke="#5a4a40" stroke-width="3" fill="none"/><ellipse cx="60" cy="52" rx="24" ry="14" fill="#6a5448"/><path d="M52 38Q62 34 72 40" stroke="#4a3a32" stroke-width="4" stroke-linecap="round" fill="none"/><path d="M40 44Q24 38 8 46L10 60Q26 66 42 60Z" fill="#6a5448"/><circle cx="22" cy="58" r="5" fill="#5a463c"/><circle cx="32" cy="58" r="5" fill="#5a463c"/><path d="M8 54L26 54" stroke="#2a1a14" stroke-width="2"/><path d="M14 54L16 50L18 54Z" fill="#fff"/><circle cx="28" cy="46" r="1.8" fill="#222"/><ellipse cx="9" cy="50" rx="2" ry="3" fill="#8a6a5a"/>',
+  procop:'<path d="M58 72Q82 76 96 90" stroke="#b08058" stroke-width="8" fill="none" stroke-linecap="round"/><path d="M50 80L64 88L40 90Z" fill="#9a6e48"/><ellipse cx="50" cy="60" rx="16" ry="24" fill="#b08058"/><ellipse cx="48" cy="66" rx="9" ry="14" fill="#d8b890"/><path d="M40 50L30 60M42 54L32 66" stroke="#9a6e48" stroke-width="4" stroke-linecap="round"/><path d="M40 20L36 6L46 18ZM50 18L56 4L56 20Z" fill="#9a6e48"/><circle cx="46" cy="30" r="12" fill="#b08058"/><circle cx="40" cy="28" r="2" fill="#222"/><ellipse cx="38" cy="37" rx="5" ry="3" fill="#6a4a3a"/>',
+  arthro:'<g stroke="#4a3228" stroke-width="2" stroke-linecap="round"><path d="M14 64L12 72M22 58L20 66M30 56L30 64M38 56L39 64M46 59L47 67M54 62L55 70M62 65L63 73M70 66L71 74M78 64L79 72M86 60L88 68"/></g><path d="M8 60Q30 44 52 56Q74 68 92 54" stroke="#6a4a3a" stroke-width="16" fill="none" stroke-linecap="round"/><path d="M8 60Q30 44 52 56Q74 68 92 54" stroke="#9a6a50" stroke-width="14" fill="none" stroke-dasharray="4 3"/><circle cx="94" cy="52" r="6" fill="#5a3a2a"/><path d="M96 47L98 38M98 50L100 42" stroke="#5a3a2a" stroke-width="1.8" stroke-linecap="round"/>',
+  beaver:'<ellipse cx="84" cy="70" rx="14" ry="7" fill="#4a3a2a"/><g stroke="#2a1a0a" stroke-width=".8" fill="none"><path d="M74 66L94 74M76 72L92 66"/></g><ellipse cx="54" cy="60" rx="26" ry="18" fill="#7a5a3a"/><g fill="#6a4a2a"><ellipse cx="40" cy="76" rx="6" ry="4"/><ellipse cx="62" cy="78" rx="7" ry="4"/></g><circle cx="30" cy="38" r="3.5" fill="#6a4a2a"/><circle cx="28" cy="50" r="14" fill="#7a5a3a"/><ellipse cx="18" cy="54" rx="8" ry="6" fill="#8a6a4a"/><circle cx="12" cy="52" r="2" fill="#222"/><circle cx="26" cy="45" r="2" fill="#222"/><rect x="14" y="58" width="6" height="7" rx="1" fill="#e89a3a"/>',
+  bronto2:'<g fill="#5a5a5a"><rect x="38" y="62" width="10" height="24" rx="3"/><rect x="68" y="62" width="10" height="24" rx="3"/></g><path d="M84 50Q92 56 92 64" stroke="#6a6a6a" stroke-width="3" fill="none"/><ellipse cx="62" cy="52" rx="26" ry="16" fill="#7a7a7a"/><path d="M40 44Q24 40 10 50L12 62Q28 66 42 60Z" fill="#7a7a7a"/><path d="M16 48L12 34L8 26M12 34L18 26" stroke="#9a9288" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/><circle cx="26" cy="48" r="1.8" fill="#222"/><path d="M30 42L32 36L35 43Z" fill="#6a6a6a"/>',
+  hyena:'<path d="M82 60Q92 64 92 74" stroke="#8a7050" stroke-width="4" fill="none" stroke-linecap="round"/><g fill="#8a7050"><rect x="34" y="56" width="8" height="30" rx="3"/><rect x="70" y="64" width="8" height="22" rx="3"/></g><path d="M30 46Q56 42 84 60Q80 72 62 70Q40 68 30 60Z" fill="#b8986a"/><g fill="#6a5030"><circle cx="46" cy="52" r="2.5"/><circle cx="56" cy="56" r="2.5"/><circle cx="66" cy="60" r="2.5"/><circle cx="52" cy="62" r="2"/><circle cx="72" cy="66" r="2"/></g><path d="M30 46Q40 40 60 46" stroke="#6a5030" stroke-width="3" fill="none"/><circle cx="20" cy="30" r="4" fill="#9a7a50"/><circle cx="30" cy="31" r="4" fill="#9a7a50"/><circle cx="24" cy="42" r="11" fill="#b8986a"/><path d="M6 44Q10 38 20 40L22 52Q12 54 6 50Z" fill="#9a7a50"/><circle cx="6" cy="46" r="2" fill="#222"/><circle cx="22" cy="38" r="2" fill="#222"/>',
+  dimetro:'<path d="M64 60Q84 62 98 72" stroke="#a0603a" stroke-width="6" fill="none" stroke-linecap="round"/><path d="M34 56Q44 14 54 12Q66 16 72 58Z" fill="#e8844a"/><g stroke="#b8582a" stroke-width="1.5"><path d="M40 56L44 26M48 56L50 16M56 56L56 14M64 57L62 22M70 58L68 36"/></g><g fill="#8a4a2a"><path d="M38 64L34 78L42 76Z"/><path d="M62 64L64 78L70 74Z"/></g><ellipse cx="52" cy="62" rx="22" ry="8" fill="#b8683a"/><path d="M8 58Q12 50 32 54L32 66Q16 68 8 62Z" fill="#b8683a"/><path d="M8 61L28 61" stroke="#5a2a1a" stroke-width="1.5"/><g fill="#fff"><path d="M12 61L13 64L14 61Z"/><path d="M18 61L19 64L20 61Z"/></g><circle cx="22" cy="56" r="1.8" fill="#222"/>',
+  dodo:'<g stroke="#e8b040" stroke-width="4" stroke-linecap="round" fill="none"><path d="M48 76L46 90L40 92M46 90L50 93"/><path d="M60 76L62 90L56 92M62 90L68 92"/></g><ellipse cx="56" cy="58" rx="26" ry="22" fill="#8a8a9a"/><path d="M78 50Q92 44 90 58Q86 54 80 58Z" fill="#f4f4f4"/><path d="M60 48Q70 52 72 64" stroke="#6a6a7a" stroke-width="3" fill="none"/><circle cx="32" cy="36" r="12" fill="#8a8a9a"/><path d="M24 34Q8 32 6 44Q8 50 14 46Q16 42 26 42Z" fill="#e8c860"/><path d="M6 44Q8 50 14 46" stroke="#b89030" stroke-width="2" fill="none"/><circle cx="32" cy="32" r="2.2" fill="#fff"/><circle cx="32" cy="32" r="1.2" fill="#222"/>',
+  stygi:'<path d="M62 52Q82 54 98 62" stroke="#7a6aa0" stroke-width="7" fill="none" stroke-linecap="round"/><g stroke="#5a4a80" stroke-width="5" stroke-linecap="round" fill="none"><path d="M52 62L48 86L42 88"/><path d="M62 62L64 86L70 88"/></g><ellipse cx="56" cy="54" rx="16" ry="12" fill="#8a7ab0"/><path d="M44 50Q38 42 36 36" stroke="#8a7ab0" stroke-width="9" stroke-linecap="round"/><g fill="#5a4a80"><path d="M40 24L48 18L44 28Z"/><path d="M41 30L50 30L43 34Z"/><path d="M34 16L36 8L39 17Z"/><path d="M26 17L25 9L30 16Z"/></g><path d="M18 34Q20 18 34 18Q44 20 42 34Q32 40 18 34Z" fill="#8a7ab0"/><path d="M22 26Q26 14 36 16Q42 20 42 28Q32 22 22 26Z" fill="#b8a0d8"/><path d="M18 34L12 36L20 38Z" fill="#6a5a90"/><circle cx="26" cy="30" r="1.8" fill="#222"/><path d="M46 58L40 64" stroke="#5a4a80" stroke-width="3" stroke-linecap="round"/>',
+  styraco:'<path d="M74 54Q90 56 98 64" stroke="#b07a40" stroke-width="7" fill="none" stroke-linecap="round"/><g fill="#8a5a2a"><rect x="42" y="62" width="10" height="24" rx="3"/><rect x="70" y="62" width="10" height="24" rx="3"/></g><ellipse cx="62" cy="54" rx="24" ry="14" fill="#c08848"/><g fill="#8a5a2a"><path d="M40 28L36 8L46 26Z"/><path d="M44 34L54 16L50 36Z"/><path d="M46 42L60 32L52 46Z"/><path d="M34 26L24 12L38 26Z"/></g><path d="M44 30Q48 44 44 58Q34 56 30 40Q32 28 44 30Z" fill="#d8a060"/><path d="M34 44Q20 40 10 50L14 58Q26 60 36 56Z" fill="#c08848"/><path d="M14 46L10 30L20 44Z" fill="#f0e0c0"/><path d="M10 50L4 54L12 56Z" fill="#8a5a2a"/><circle cx="24" cy="46" r="1.8" fill="#222"/>',
+  protocera:'<path d="M72 56Q88 58 96 66" stroke="#c8a870" stroke-width="7" fill="none" stroke-linecap="round"/><g fill="#a88a58"><rect x="42" y="62" width="9" height="22" rx="3"/><rect x="66" y="62" width="9" height="22" rx="3"/></g><ellipse cx="60" cy="56" rx="22" ry="13" fill="#d8b880"/><path d="M42 36Q52 44 46 60Q34 58 30 46Q32 34 42 36Z" fill="#e8cc98" stroke="#b8985a" stroke-width="1.5"/><path d="M34 44Q20 42 12 52L16 60Q28 62 38 58Z" fill="#d8b880"/><path d="M12 52L6 56L14 58Z" fill="#8a6a3a"/><circle cx="26" cy="48" r="1.8" fill="#222"/>',
+  giga:'<path d="M60 50Q82 52 98 62" stroke="#8a6a5a" stroke-width="10" fill="none" stroke-linecap="round"/><g stroke="#6a4a3e" stroke-width="8" stroke-linecap="round" fill="none"><path d="M50 62L46 88L38 90"/><path d="M62 62L66 88L74 90"/></g><ellipse cx="54" cy="52" rx="20" ry="14" fill="#8a6a5a"/><g stroke="#6a4a3e" stroke-width="3" stroke-linecap="round"><path d="M50 40V46M58 40V46M66 42V48"/></g><path d="M40 46Q32 38 28 32" stroke="#8a6a5a" stroke-width="12" stroke-linecap="round"/><path d="M4 30L36 30L34 35L6 36Z" fill="#6a2a2a"/><path d="M2 24Q8 14 30 18L36 30L4 30Z" fill="#8a6a5a"/><path d="M6 36L34 35L36 41Q20 45 8 40Z" fill="#8a6a5a"/><g fill="#fff"><path d="M8 30L10 33L12 30Z"/><path d="M16 30L18 33L20 30Z"/><path d="M24 30L26 33L28 30Z"/><path d="M12 36L14 33L16 36Z"/><path d="M20 35.5L22 32.5L24 35.5Z"/></g><circle cx="22" cy="23" r="2" fill="#222"/><path d="M44 58L38 64" stroke="#6a4a3e" stroke-width="3" stroke-linecap="round"/>',
+  argentino:'<path d="M74 56Q90 60 99 76" stroke="#8a9a6a" stroke-width="8" fill="none" stroke-linecap="round"/><g fill="#6a7a4a"><rect x="36" y="60" width="11" height="28" rx="4"/><rect x="66" y="60" width="11" height="28" rx="4"/></g><ellipse cx="56" cy="54" rx="26" ry="18" fill="#8a9a6a"/><path d="M36 46Q26 22 30 10" stroke="#8a9a6a" stroke-width="10" fill="none" stroke-linecap="round"/><ellipse cx="24" cy="9" rx="9" ry="5" fill="#8a9a6a"/><circle cx="21" cy="8" r="1.5" fill="#222"/><g fill="#7a8a5a"><circle cx="50" cy="46" r="2.5"/><circle cx="60" cy="44" r="2.5"/><circle cx="70" cy="48" r="2.5"/><circle cx="58" cy="54" r="2.5"/></g>',
+  micro:'<path d="M58 52Q78 48 98 56Q80 60 60 58Z" fill="#2a2a4a"/><path d="M84 54L98 50L96 60Z" fill="#3a6aa8"/><path d="M44 50L10 30Q20 50 36 58Z" fill="#2a3a6a"/><path d="M52 60L40 88Q56 78 62 62Z" fill="#2a3a6a"/><g stroke="#4a7ac8" stroke-width="1.2"><path d="M16 34L24 48M24 38L30 52M46 80L52 66"/></g><ellipse cx="52" cy="54" rx="12" ry="8" fill="#3a3a5a"/><path d="M44 50Q38 42 34 36" stroke="#3a3a5a" stroke-width="6" stroke-linecap="round"/><ellipse cx="30" cy="32" rx="7" ry="5" fill="#3a3a5a"/><path d="M24 32L16 34L24 35Z" fill="#8a8a9a"/><circle cx="30" cy="30" r="1.5" fill="#fff"/>',
+  therizino:'<path d="M64 60Q80 64 92 74" stroke="#8a6a40" stroke-width="7" fill="none" stroke-linecap="round"/><g stroke="#6a4a2a" stroke-width="6" stroke-linecap="round" fill="none"><path d="M52 72L50 90L44 92"/><path d="M62 72L64 90L70 92"/></g><ellipse cx="56" cy="60" rx="18" ry="18" fill="#a88050"/><path d="M48 44Q42 30 38 20" stroke="#a88050" stroke-width="8" stroke-linecap="round"/><ellipse cx="34" cy="16" rx="7" ry="5" fill="#a88050"/><path d="M28 16L22 19L29 20Z" fill="#6a4a2a"/><circle cx="34" cy="14" r="1.5" fill="#222"/><path d="M46 54L30 60" stroke="#8a6a40" stroke-width="5" stroke-linecap="round"/><g stroke="#f0e4c8" stroke-width="2.5" fill="none" stroke-linecap="round"><path d="M30 60Q16 64 10 80M31 61Q20 70 18 84M29 58Q14 58 6 70"/></g>',
+  kunpeng:'<path d="M0 84Q12 76 24 84T48 84T72 84T96 84T120 84V100H0Z" fill="#3a7ab8"/><path d="M50 50L2 30Q14 50 30 56Z" fill="#2a3a6a"/><path d="M50 50L98 30Q86 50 70 56Z" fill="#2a3a6a"/><path d="M4 32L10 40M12 36L16 44M88 36L84 44M96 32L90 40" stroke="#4a5a8a" stroke-width="2"/><ellipse cx="50" cy="56" rx="10" ry="16" fill="#1f2a50"/><path d="M50 70L42 80L50 76L58 80Z" fill="#1f2a50"/><circle cx="50" cy="40" r="7" fill="#1f2a50"/><path d="M50 34L50 26L54 34Z" fill="#ffd24a"/><circle cx="48" cy="39" r="1.4" fill="#ffd24a"/><circle cx="52" cy="39" r="1.4" fill="#ffd24a"/>'
+};
+// 用現有的圖改顏色做出來的
+SVG.locust=SVG.grasshopper.replace(/#7cc04a/g,'#c0a060').replace(/#5a9a34/g,'#9a7a3a').replace(/#6aae3e/g,'#b08a4a').replace(/#4f8a2a/g,'#7a5a2a');
+SVG.parasaur=SVG.duckbill.replace('M34 24Q44 8 52 12Q46 18 38 28Z','M30 26Q52 4 76 8Q58 18 38 32Z').replace(/#7aa05a/g,'#6a8ac0').replace(/#5f8446/g,'#4a6aa0').replace('#d86a4a','#e8a040');
+SVG.bronto=SVG.diplo.replace(/#8a9ab0/g,'#a8946a').replace(/#6f7f96/g,'#806e4c').replace('rx="20" ry="13"','rx="25" ry="16"');
+SVG.meganeura=SVG.dragonfly.replace('#cdeefc','#f6e8c0').replace('#8cc9e6','#c8a060').replace(/#2c7fb8/g,'#6a4a2a').replace(/#4fb0e0/g,'#8a6a3a');
+SVG.carcharo=SVG.giga.replace(/#8a6a5a/g,'#8a9a6a').replace(/#6a4a3e/g,'#4a5a3a');
+SVG.deinony=SVG.raptor.replace(/#4f7fa8/g,'#c86a3a').replace(/#3a6a90/g,'#9a4a2a').replace('#8fc0e0','#f0c080');
+SVG.euoplo=SVG.ankylo.replace(/#8a7a5a/g,'#7a8a9a').replace(/#6b5d42/g,'#4a5a6a').replace(/#d9cfb2/g,'#e8eef4');
+SVG.dilo=SVG.allo.replace('M20 28L24 20L27 28Z','M10 29Q14 12 24 24ZM17 28Q24 10 33 25Z').replace(/#b86a4a/g,'#9aa848').replace(/#8f4f36/g,'#6a7a2a').replace('fill="#6a2a1a"','fill="#e04a2a"');
+SVG.maia=SVG.duckbill.replace('<path d="M34 24Q44 8 52 12Q46 18 38 28Z" fill="#d86a4a"/>','').replace(/#7aa05a/g,'#a8a06a').replace(/#5f8446/g,'#7a724a')+'<ellipse cx="22" cy="90" rx="16" ry="6" fill="#8a6a3a"/><g fill="#f4ecd8" stroke="#c8b898"><ellipse cx="15" cy="85" rx="4" ry="5"/><ellipse cx="23" cy="84" rx="4" ry="5"/><ellipse cx="30" cy="86" rx="4" ry="5"/></g>';
+SVG.carno=SVG.allo.replace('M20 28L24 20L27 28Z','M13 29L8 17L19 27ZM24 28L30 17L30 29Z').replace(/#b86a4a/g,'#c8483a').replace(/#8f4f36/g,'#8a2f24');
+function artHTML(w,sil){
+  const inner=w.art.startsWith('e:')?`<span class="emo">${w.art.slice(2)}</span>`:`<svg viewBox="0 0 100 100" aria-hidden="true">${SVG[w.art.slice(2)]}</svg>`;
+  return `<div class="art${sil?' sil':''}">${inner}</div>`;
+}
+function starsHTML(n,cls='stars'){
+  return `<span class="${cls}">${[0,1,2].map(i=>`<svg viewBox="0 0 24 24"><path d="M12 2.8l2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17.2l-5.7 3.1 1.2-6.4-4.7-4.4 6.4-.8z" fill="${i<n?'#ffc947':'#eadfc8'}" stroke="${i<n?'#c9920f':'#d6c6a4'}" stroke-width="1.4" stroke-linejoin="round"/></svg>`).join('')}</span>`;
+}
+
+/* ================= 設定與存檔 ================= */
+const store={
+  get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},
+  set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+};
+const THEMES=[...CATS.map(c=>({k:c.k,n:c.n})),{k:'all',n:'全部'}];
+THEMES.forEach(t=>{ const ws=WORDS.filter(w=>t.k==='all'||w.cat===t.k); t.s=t.k==='all'?`${CATS.length} 類一起，共 ${ws.length} 種`:`${ws.slice(0,3).map(w=>w.w).join('、')}…共 ${ws.length} 種`; });
+const DIFFS=[
+  {k:'easy',n:'小地鼠',s:'注音一次冒 5 隻，慢慢來，牌子有顏色',sym:5,extra:5,conf:1,up:3,stay:5000,gap:800},
+  {k:'normal',n:'快地鼠',s:'注音一次冒 6 隻，有長得像的符號',sym:6,extra:6,conf:2,up:4,stay:3800,gap:650},
+  {k:'hard',n:'閃電地鼠',s:'注音一次冒 7 隻又快，牌子沒有顏色',sym:7,extra:7,conf:3,up:4,stay:2800,gap:500}];
+const RATES=[{k:.5,n:'很慢',s:'一個音一個音拉長'},{k:.65,n:'慢',s:'適合剛學注音'},{k:.85,n:'一般',s:'平常說話的速度'}];
+const REPEATS=[{k:'once',n:'念一次',s:'想再聽就按喇叭'},{k:'twice',n:'連念兩次',s:'每個名字念兩遍'},{k:'auto',n:'兩次＋自動重複',s:'還沒打完，每 10 秒再念一次'}];
+const saved=store.get('zymole-settings',{});
+const S={
+  view:'home', theme:saved.theme||'insect', diff:saved.diff||'easy', rate:saved.rate||.65, repeat:saved.repeat||'twice', voice:saved.voice||'', pack:saved.pack||'', sound:true,
+  round:[], ri:0, word:null, ci:0, chars:[], distract:[], mistakes:0, hints:0, results:[], score:0, combo:0,
+  errs:{i:0,m:0,f:0,t:0}, confs:{}, glowSym:null, glowTone:null, speaking:false, sinceSpeak:0,
+  paused:false, freeze:0, nextPop:0, group:0, dexTab:'insect', clearAsk:false,
+  roundRev:[], untilReview:store.get('zymole-review',2+Math.floor(Math.random()*2))
+};
+let DEX=store.get('zypuzzle-dex',{});
+const baseWords=()=>WORDS.filter(w=>w.cat!=='myth');
+const mythOpen=()=>baseWords().every(w=>DEX[w.w]===3);          // 其他圖鑑每一種都三顆星
+const mythLeft=()=>baseWords().filter(w=>DEX[w.w]!==3).length;
+const starSum=ws=>ws.reduce((a,w)=>a+(DEX[w.w]||0),0);
+if(S.theme==='myth'&&!mythOpen()) S.theme='insect';   // {名字: 最高星數}（沿用拼圖版的圖鑑紀錄）
+const saveDex=()=>store.set('zypuzzle-dex',DEX);
+const cfg=()=>DIFFS.find(d=>d.k===S.diff)||DIFFS[0];
+
+/* ================= 聲音 ================= */
+let AC=null;
+function initAudio(){ if(AC) return; try{ AC=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){AC=null} }
+function tone(f1,f2,dur,type='sine',vol=.16,delay=0){
+  if(!AC||!S.sound) return;
+  const t=AC.currentTime+delay, o=AC.createOscillator(), g=AC.createGain();
+  o.type=type; o.frequency.setValueAtTime(f1,t); o.frequency.exponentialRampToValueAtTime(f2,t+dur);
+  g.gain.setValueAtTime(vol,t); g.gain.exponentialRampToValueAtTime(.001,t+dur);
+  o.connect(g).connect(AC.destination); o.start(t); o.stop(t+dur+.02);
+}
+const sfx={
+  bonk(){tone(300,120,.12,'square',.1);tone(880,1320,.12,'triangle',.12,.05)},
+  thud(){tone(140,90,.08,'sine',.12)},
+  good(){tone(784,784,.12,'triangle',.16);tone(1175,1175,.2,'triangle',.16,.1)},
+  tease(){tone(520,700,.08,'triangle',.1);tone(700,520,.1,'triangle',.1,.09)},
+  win(){[659,784,988,1319].forEach((f,i)=>tone(f,f,.2,'triangle',.15,i*.1))}
+};
+// 語音包：旁邊有 voice/index.js（make-voicepack.js 產的）就播預錄的真人語音，沒有就退回瀏覽器 TTS。
+// 用 <script> 載入而不是 fetch，是因為 file:// 直接開檔時 fetch 會被擋，script 不會。
+let VOICE=null, curClip=null, PACKS=[];
+function loadScript(src,ok,fail){ const s=document.createElement('script'); s.src=src; s.onload=ok; s.onerror=fail; document.head.appendChild(s); }
+// 切換語音包：載入那一包的 index.js，載完才算切好
+function loadPack(id,then){
+  const p=PACKS.find(x=>x.id===id); if(!p){ VOICE=null; updateVoiceStatus(); return; }
+  stopClip(); window.VOICE_INDEX=null;
+  loadScript(p.index, ()=>{ VOICE=(window.VOICE_INDEX&&window.VOICE_INDEX.files)?window.VOICE_INDEX:null; updateVoiceStatus(); then&&then(); },
+                      ()=>{ VOICE=null; updateVoiceStatus(); });
+}
+(function(){
+  // 先找總目錄 voice/packs.js（可以有好幾個聲音）；沒有就退回舊格式 voice/index.js（單一聲音）
+  loadScript('voice/packs.js', ()=>{
+    PACKS=Array.isArray(window.VOICE_PACKS)?window.VOICE_PACKS:[];
+    buildPackChips();
+    if(PACKS.length){ if(!PACKS.some(p=>p.id===S.pack)) S.pack=PACKS[0].id; loadPack(S.pack); } else updateVoiceStatus();
+  }, ()=>{
+    loadScript('voice/index.js', ()=>{ VOICE=(window.VOICE_INDEX&&window.VOICE_INDEX.files)?window.VOICE_INDEX:null; buildPackChips(); updateVoiceStatus(); },
+                                ()=>{ VOICE=null; buildPackChips(); updateVoiceStatus(); });
+  });
+})();
+function buildPackChips(){
+  const el=$('packChips'); if(!el) return;
+  if(!PACKS.length){ el.innerHTML='<span class="note">'+(VOICE?'只有一個語音包（舊格式）':'沒有語音包——HTML 旁邊沒有 voice 資料夾，先用瀏覽器語音')+'</span>'; return; }
+  chipGroup(el,PACKS.map(p=>({k:p.id,n:p.name,s:p.sub+'・'+p.count+' 段'})),'pack',()=>{
+    loadPack(S.pack, ()=>{ initAudio(); say('三葉蟲'); });
+  });
+}
+function stopClip(){ if(curClip){ try{ curClip.pause(); }catch(e){} curClip=null; } }
+// 設定頁最下面那行狀態：一眼看出現在到底是誰在念
+function updateVoiceStatus(){
+  const el=$('voiceStatus'); if(!el) return;
+  const pk = VOICE && PACKS.find(p=>p.id===VOICE.id);
+  const pack = VOICE ? `✅ 語音包已載入：${pk?pk.name+'（'+pk.sub+'）':VOICE.voice}，${VOICE.count} 段，遊戲裡的詞和句子都用它念`
+                     : `沒有語音包（HTML 旁邊找不到 voice 資料夾），全部用瀏覽器語音念`;
+  const bv = zhVoice ? zhVoice.name : '找不到中文語音';
+  const hint = (!VOICE && zhVoice && /desktop/i.test(zhVoice.name)) ? '　← 這是最機械的那個。用 Edge 開會多出「曉臻／曉雨 Online (Natural)」可以選' : '';
+  el.textContent = `${pack}。瀏覽器語音：${bv}${hint}`;
+}
+let zhVoice=null, zhVoices=[];
+// 語音排序：神經網路語音（名字含 Natural／Online／Neural，Edge 與新版 Chrome 才有）最像真人；
+// iOS 下載過的 Premium／Enhanced 次之；Windows 的 Yating／Zhiwei 再次之；
+// 舊版 SAPI5 的「Hanhan Desktop」最機械——原本的寫法是拿第一個 zh-TW，在 Windows 上剛好就是它。
+function voiceScore(v){
+  let s=0;
+  if(/zh[-_]TW/i.test(v.lang)) s+=40; else if(/zh[-_](HK|Hant)/i.test(v.lang)) s+=20; else if(/^zh|cmn/i.test(v.lang)) s+=10; else return -1;
+  if(/natural|online|neural/i.test(v.name)) s+=50;
+  if(/premium|enhanced|siri/i.test(v.name)) s+=40;
+  if(/yating|zhiwei|hsiao|yun|google/i.test(v.name)) s+=15;
+  if(/desktop/i.test(v.name)) s-=30;
+  return s;
+}
+function pickVoice(){
+  if(!('speechSynthesis' in window)) return;
+  zhVoices=speechSynthesis.getVoices().filter(v=>voiceScore(v)>=0).sort((a,b)=>voiceScore(b)-voiceScore(a));
+  zhVoice=zhVoices.find(v=>v.name===S.voice)||zhVoices[0]||null;   // 設定頁選過的優先
+  buildVoiceChips();
+}
+const voiceLabel=v=>v.name.replace(/^Microsoft\s+/,'').replace(/\s*-\s*Chinese.*$/,'').replace(/\s*\((Natural|Enhanced|Premium)\)\s*/i,' ').trim()||v.name;
+const voiceSub=v=>/natural|online|neural/i.test(v.name)?'線上神經語音，最像真人':/premium|enhanced/i.test(v.name)?'高品質語音':/desktop/i.test(v.name)?'舊版，比較機械':v.localService?'裝置內建':'線上語音';
+function buildVoiceChips(){
+  const el=$('voiceChips'); if(!el) return;
+  if(!zhVoices.length){ el.innerHTML='<span class="note">這台裝置找不到中文語音</span>'; updateVoiceStatus(); return; }
+  if(!zhVoices.some(v=>v.name===S.voice)) S.voice=zhVoices[0].name;
+  chipGroup(el,zhVoices.map(v=>({k:v.name,n:voiceLabel(v),s:voiceSub(v)})),'voice',()=>{
+    zhVoice=zhVoices.find(v=>v.name===S.voice)||zhVoices[0]; updateVoiceStatus(); initAudio(); say('三葉蟲');
+  });
+  updateVoiceStatus();
+}
+if('speechSynthesis' in window){ pickVoice(); speechSynthesis.onvoiceschanged=pickVoice; }
+setTimeout(()=>{ pickVoice(); $('voiceNote').hidden=!!zhVoice; },1500);
+
+// 依序念出多段文字，每段之間停一下；新的念法會打斷舊的
+let speakToken=0;
+function sayParts(parts,gap=900,onPart){
+  if(!('speechSynthesis' in window)||!parts.length){ onPart&&onPart(-1); return; }
+  const my=++speakToken, btn=$('replay');
+  stopClip(); try{ speechSynthesis.cancel(); }catch(e){}
+  S.speaking=true; S.sinceSpeak=0; btn.classList.add('talking');
+  let i=0;
+  const finish=()=>{ if(my!==speakToken) return; S.speaking=false; S.sinceSpeak=0; btn.classList.remove('talking'); onPart&&onPart(-1); };
+  const next=()=>{
+    if(my!==speakToken) return;
+    if(i>=parts.length) return finish();
+    const idx=i, text=parts[i++]; onPart&&onPart(idx);
+    let done=false;
+    const fin=()=>{ if(done) return; done=true; clearTimeout(guard); setTimeout(next,i<parts.length?gap:0); };
+    const guard=setTimeout(fin,(text.length*650)/S.rate+2500);   // 有些瀏覽器偶爾不回報念完
+    const speakTTS=()=>{
+      try{
+        const u=new SpeechSynthesisUtterance(text);
+        u.lang='zh-TW'; if(zhVoice) u.voice=zhVoice; u.rate=S.rate; u.pitch=1.1;
+        u.onend=fin; u.onerror=fin; speechSynthesis.speak(u);
+      }catch(e){ fin(); }
+    };
+    const clip=VOICE&&VOICE.files[text];
+    if(clip){                                                   // 語音包有這句：播預錄的
+      try{
+        const a=new Audio(VOICE.base+clip); curClip=a;
+        // 預錄音檔本身已經是慢速合成的；再用播放速度拖慢會變得生硬，所以只允許小幅調整（0.85～1.1）
+        a.playbackRate=Math.max(.85,Math.min(1.1,S.rate/.85));
+        a.preservesPitch=true;
+        a.onended=()=>{ if(curClip===a) curClip=null; fin(); };
+        a.onerror=()=>{ if(curClip===a) curClip=null; speakTTS(); };   // 檔案缺了就退回 TTS
+        a.play().catch(()=>{ if(curClip===a) curClip=null; speakTTS(); });
+      }catch(e){ speakTTS(); }
+    }else speakTTS();
+  };
+  setTimeout(next,80);
+}
+function stopSpeech(){ speakToken++; S.speaking=false; $('replay').classList.remove('talking'); stopClip(); try{speechSynthesis.cancel()}catch(e){} }
+const say=t=>sayParts([t]);
+function speakWord(times){ if(!S.word) return; sayParts(Array(times||(S.repeat==='once'?1:2)).fill(S.word.w),1100); }
+function speakChars(){ if(!S.word) return; sayParts([...[...S.word.w],S.word.w],900); }
+const curChar=()=>S.word?[...S.word.w][S.ci]:'';
+
+/* ================= 地鼠田 ================= */
+const holes=[];
+function buildField(){
+  const f=$('field');
+  for(let i=0;i<9;i++){
+    const b=document.createElement('button'); b.className='hole'; b.type='button'; b.dataset.h=i; b.setAttribute('aria-label','空的洞');
+    b.innerHTML='<span class="pit"></span><span class="well"><span class="mole"><span class="dizzy">✦ ✦ ✦</span><span class="eyes"><i></i><i></i></span><span class="nose"></span><span class="sign"></span></span></span><span class="lip"></span><span class="bubble">嘿嘿！</span>';
+    f.insertBefore(b,$('hammer'));
+    holes.push({el:b,sign:b.querySelector('.sign'),c:null,until:0,state:'down'});
+  }
+}
+function popMole(h,c,now){
+  h.c=c; h.state='up'; h.until=now+cfg().stay;
+  const cls=c.kind==='t'?'t':symClass(c.v);
+  h.sign.className='sign r-'+cls;
+  h.sign.innerHTML=c.kind==='t'?`${TONE_SHOW[c.v]}<small>${TONE_NAME[c.v]}</small>`:c.v;
+  h.el.className='hole up'+(isGlow(c)?' glow':'');
+  h.el.setAttribute('aria-label',c.kind==='t'?`地鼠舉著${TONE_NAME[c.v]}`:`地鼠舉著 ${c.v}`);
+}
+function downMole(h){
+  if(h.state==='down') return;
+  h.state='down'; h.el.className='hole gone'; h.el.setAttribute('aria-label','空的洞');
+}
+function clearMoles(){ holes.forEach(downMole); }
+const isGlow=c=>c&&((c.kind==='s'&&S.glowSym===c.v)||(c.kind==='t'&&S.glowTone===c.v));
+function refreshGlow(){ holes.forEach(h=>{ if(h.state==='up') h.el.classList.toggle('glow',isGlow(h.c)); }); }
+// 一次冒出一群：一隻舉正確答案，其他舉長得像、容易搞混的符號或聲調
+function spawnGroup(now){
+  const c=S.chars[S.ci], syl=S.word.syl[S.ci], n=cfg().up;
+  let list;
+  if(c.phase==='sym'){
+    const need=syl.b.filter((s,j)=>!c.filled[j]);
+    const right=syl.b[c.filled.findIndex(x=>!x)];     // 照順序：聲母→介音→韻母
+    const m=Math.max(5,cfg().sym||5);                 // 注音至少一次冒 5 隻
+    const wrong=shuffle(S.distract).slice(0,m-1);
+    if(wrong.length<m-1){                              // 干擾符號不夠就再補
+      const all=[...INITIALS,...MEDIALS,...FINALS].filter(x=>!syl.b.includes(x)&&!wrong.includes(x));
+      wrong.push(...shuffle(all).slice(0,m-1-wrong.length));
+    }
+    list=[right,...wrong].map(v=>({kind:'s',v}));
+  }else{
+    const wrong=shuffle([1,2,3,4].filter(t=>t!==syl.t)).slice(0,Math.min(n,4)-1);
+    list=[syl.t,...wrong].map(v=>({kind:'t',v}));
+  }
+  S.group++;
+  const hs=shuffle(holes.filter(h=>h.state==='down')).slice(0,list.length);
+  shuffle(list).slice(0,hs.length).forEach((ct,k)=>popMole(hs[k],ct,now));
+}
+function regroup(){ clearMoles(); S.group++; S.nextPop=performance.now()+350; }
+function tick(){
+  const now=performance.now();
+  if(S.view!=='play'||S.paused||!S.word||!$('doneOv').hidden||!$('sumOv').hidden) return;
+  holes.forEach(h=>{ if(h.state==='up'&&now>h.until) downMole(h); });
+  const c=S.chars[S.ci]; if(!c||c.phase==='done'||now<S.freeze) return;
+  const upN=holes.filter(h=>h.state!=='down').length;
+  if(upN) return;
+  if(S.nextPop===Infinity){ S.nextPop=now+cfg().gap; return; }   // 這一群剛下去，停一下再冒下一群
+  if(now>=S.nextPop){ spawnGroup(now); S.nextPop=Infinity; }
+}
+setInterval(tick,100);
+setInterval(()=>{
+  if(S.view!=='play'||S.paused||S.repeat!=='auto'||!S.word||S.speaking||!$('doneOv').hidden||!$('sumOv').hidden) return;
+  S.sinceSpeak++; if(S.sinceSpeak>=10) speakWord(1);
+},1000);
+
+function fxAt(h,text){
+  const f=$('field').getBoundingClientRect(), r=h.el.getBoundingClientRect();
+  const d=document.createElement('span'); d.className='fx'; d.textContent=text;
+  d.style.left=(r.left-f.left+r.width/2)+'px'; d.style.top=(r.top-f.top+r.height*.15)+'px';
+  $('field').appendChild(d); setTimeout(()=>d.remove(),850);
+}
+function swingHammer(e,h){
+  const f=$('field').getBoundingClientRect(); let x=e.clientX, y=e.clientY;
+  if(!e.detail||(!x&&!y)){ const r=h.el.getBoundingClientRect(); x=r.left+r.width/2; y=r.top+r.height*.4; }
+  const hm=$('hammer'); hm.style.left=(x-f.left)+'px'; hm.style.top=(y-f.top)+'px';
+  hm.classList.remove('swing'); void hm.offsetWidth; hm.classList.add('swing');
+}
+function bonk(h){
+  h.state='hit'; h.el.classList.remove('up','glow'); h.el.classList.add('hit');
+  setTimeout(()=>{ if(h.state==='hit') downMole(h); },480);
+}
+function tease(h){
+  h.state='hit'; h.el.classList.remove('up','glow'); h.el.classList.add('miss');
+  setTimeout(()=>{ if(h.state==='hit') downMole(h); },750);
+}
+function goodHit(h){
+  S.combo++; const pts=10+(S.combo>=3?5:0); S.score+=pts;
+  fxAt(h,S.combo>=3?`+${pts} 連擊 ${S.combo}`:`+${pts}`);
+  sfx.bonk(); updateScore(true);
+}
+function badHit(h){
+  S.combo=0; S.mistakes++; fxAt(h,'打錯了'); sfx.tease(); updateScore();
+}
+function addConf(k){ S.confs[k]=(S.confs[k]||0)+1; }
+
+function whack(i,e){
+  const h=holes[i]; swingHammer(e,h); initAudio();
+  if(S.paused||h.state!=='up'){ sfx.thud(); return; }
+  const c=S.chars[S.ci], syl=S.word.syl[S.ci], ch=curChar();
+  if(h.c.kind==='s'){
+    if(c.phase!=='sym') return;
+    const j=c.filled.findIndex(x=>!x);
+    if(j>=0&&syl.b[j]===h.c.v){
+      c.filled[j]=true; bonk(h); goodHit(h); S.glowSym=null; refreshGlow();
+      const g=S.group; setTimeout(()=>{ if(S.group===g) holes.forEach(x=>{ if(x!==h&&x.state==='up') downMole(x); }); },250);
+      say(READ[h.c.v]); render();
+      if(c.filled.every(Boolean)){
+        c.phase='tone'; S.freeze=performance.now()+1800; S.nextPop=0;
+        setTimeout(()=>{ clearMoles(); sfx.good(); render(); sayParts(['注音打對了，接下來打聲調',ch],600); },450);
+      }
+    }else{
+      tease(h); badHit(h);
+      const k=c.filled.findIndex(x=>!x), want=syl.b[k];
+      const r=roleAt(syl.b,k); S.errs[r]++; addConf(`${want} 打成 ${h.c.v}`);
+      c.symWrong++;
+      sayParts([`那是${READ[h.c.v]}`,S.diff==='hard'?'再聽聽看':`要找${ROLE_NAME[r]}喔`,ch],400);
+      if(c.symWrong>=3){ S.glowSym=want; refreshGlow(); }
+    }
+  }else{
+    if(c.phase!=='tone') return;
+    if(h.c.v===syl.t){
+      bonk(h); goodHit(h); c.phase='done'; S.glowTone=null; closeFour(); render(); say(ch);
+      setTimeout(clearMoles,400); setTimeout(nextChar,1200);
+    }else{
+      tease(h); badHit(h); S.errs.t++; addConf(`${TONE_NAME[syl.t]} 打成 ${TONE_NAME[h.c.v]}`);
+      c.toneWrong++;
+      if(S.word.sd===S.ci&&syl.t===3&&h.c.v===2) sayParts([`${ch}，單獨念是三聲喔`,`在${S.word.w}裡，才念得像二聲`],500);
+      else sayParts([`那是${TONE_NAME[h.c.v]}`,'再比比看',ch],400);
+      if(c.toneWrong>=2){ S.glowTone=syl.t; refreshGlow(); }
+    }
+  }
+}
+
+/* ================= 一輪與出題 ================= */
+const shuffle=a=>{ a=[...a]; for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; };
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+function startRound(){
+  initAudio(); pickVoice();
+  store.set('zymole-settings',{theme:S.theme,diff:S.diff,rate:S.rate,repeat:S.repeat,voice:S.voice,pack:S.pack});
+  if(S.theme==='myth'&&!mythOpen()) S.theme='insect';
+  const pool=WORDS.filter(w=>(S.theme==='all'||w.cat===S.theme)&&(w.cat!=='myth'||mythOpen()));
+  const q=loadQueue(pool), byName=Object.fromEntries(WORDS.map(w=>[w.w,w]));
+  const N=Math.min(5,pool.length), round=[], rev=[];
+  let until=S.untilReview, qi=0, guard=0;
+  while(round.length<N&&guard++<50){
+    if(until<=0){
+      until=2+Math.floor(Math.random()*2);           // 每 2～3 題穿插一題複習
+      const r=pickReview(round);
+      if(r){ round.push(r); rev.push(true); continue; }
+    }
+    if(qi>=q.q.length){ q.q.push(...refillOrder(pool).filter(n=>!q.q.includes(n))); }
+    const w=byName[q.q[qi++]]; if(!w) continue;
+    if(round.includes(w)) continue;
+    round.push(w); rev.push(false); until--;
+  }
+  store.set(qKey(),q);
+  S.round=round; S.roundRev=rev;
+  S.results=[]; S.errs={i:0,m:0,f:0,t:0}; S.confs={}; S.score=0; S.combo=0; S.paused=false;
+  showView('play'); startWord(0);
+}
+const qKey=()=>'zymole-queue-'+S.theme;
+// 還沒收集的排前面，其他照星星少到多
+function refillOrder(pool){
+  const fresh=shuffle(pool.filter(w=>!DEX[w.w]));
+  const old=shuffle(pool.filter(w=>DEX[w.w])).sort((a,b)=>DEX[a.w]-DEX[b.w]);
+  return [...fresh,...old].map(w=>w.w);
+}
+// 讀出上次沒出完的題目；新加入的動物排到最前面，全部出完就重新洗牌
+function loadQueue(pool){
+  const names=pool.map(w=>w.w);
+  let q=store.get(qKey(),null);
+  if(!q||!Array.isArray(q.q)||!Array.isArray(q.seen)) q={q:refillOrder(pool),seen:[]};
+  q.q=q.q.filter(n=>names.includes(n)); q.seen=q.seen.filter(n=>names.includes(n));
+  const added=refillOrder(pool.filter(w=>!q.q.includes(w.w)&&!q.seen.includes(w.w)));
+  q.q=[...added,...q.q];
+  if(!q.q.length){ q.q=refillOrder(pool); q.seen=[]; }
+  return q;
+}
+function markAsked(w){
+  const q=store.get(qKey(),{q:[],seen:[]});
+  q.q=(q.q||[]).filter(n=>n!==w.w); q.seen=(q.seen||[]).filter(n=>n!==w.w); q.seen.push(w.w);
+  if(!q.q.length) q.seen=[];     // 這一圈出完了，下次重新洗牌
+  store.set(qKey(),q);
+}
+// 複習：找以前收集過、但還沒拿到三顆星的
+function pickReview(exclude){
+  const ok=w=>DEX[w.w]&&DEX[w.w]<3&&!exclude.includes(w)&&(w.cat!=='myth'||mythOpen());
+  let c=WORDS.filter(w=>ok(w)&&(S.theme==='all'||w.cat===S.theme));
+  if(!c.length) c=WORDS.filter(ok);
+  return c.length?pick(c):null;
+}
+function startWord(i){
+  S.ri=i; S.word=S.round[i];
+  if(S.roundRev[i]) S.untilReview=2+Math.floor(Math.random()*2);
+  else { markAsked(S.word); S.untilReview--; }
+  store.set('zymole-review',S.untilReview); S.ci=0; S.mistakes=0; S.hints=0; S.glowSym=null; S.glowTone=null;
+  S.chars=S.word.syl.map(s=>({filled:s.b.map(()=>false),phase:'sym',symWrong:0,toneWrong:0}));
+  S.distract=pickDistractors(S.word.syl[0].b);
+  $('pArtBox').innerHTML=artHTML(S.word,true);
+  $('pCat').textContent=(S.roundRev[i]?'複習 · ':'')+CATS.find(c=>c.k===S.word.cat).n;
+  $('pCat').classList.toggle('review',!!S.roundRev[i]);
+  clearMoles(); S.group++; closeFour(); render(); updateScore();
+  S.freeze=performance.now()+2600; S.nextPop=0;
+  setTimeout(()=>speakWord(),350);
+}
+function pickDistractors(b){
+  const d=cfg(), have=new Set(b), out=[];
+  const add=s=>{ if(s&&!have.has(s)&&!out.includes(s)) out.push(s); };
+  const conf=shuffle(b.flatMap(s=>[...(CONF[s]||'')]));
+  conf.forEach(s=>{ if(out.length<d.conf) add(s); });
+  let guard=0;
+  while(out.length<d.extra&&guard++<300){
+    const c=symClass(pick(b)), pool=c==='i'?INITIALS:c==='m'?MEDIALS:FINALS;
+    const x=pool[Math.floor(Math.random()*pool.length)];
+    if(S.diff==='easy'&&conf.includes(x)) continue;
+    add(x);
+  }
+  return out;
+}
+function nextChar(){
+  if(S.ci<S.word.syl.length-1){
+    S.ci++; S.distract=pickDistractors(S.word.syl[S.ci].b); S.glowSym=null; S.glowTone=null;
+    S.freeze=performance.now()+1800; S.nextPop=0; render();
+    sayParts(['下一個字',curChar()],500);
+  }else wordDone();
+}
+function hint(){
+  const c=S.chars[S.ci], syl=S.word.syl[S.ci];
+  if(c.phase==='sym'){
+    const j=c.filled.findIndex(x=>!x); if(j<0) return;
+    S.hints++; S.glowSym=syl.b[j]; refreshGlow();
+    if(!holes.some(h=>h.state==='up'&&h.c.kind==='s'&&h.c.v===syl.b[j])) regroup();
+    sayParts([`找舉著`,READ[syl.b[j]],'的地鼠'],200);
+  }else if(c.phase==='tone'){
+    S.hints++; S.glowTone=syl.t; refreshGlow(); openFour(true);
+    if(!holes.some(h=>h.state==='up'&&h.c.kind==='t'&&h.c.v===syl.t)) regroup();
+  }
+}
+function wordDone(){
+  clearMoles();
+  const m=S.mistakes+S.hints, stars=m===0?3:m<=2?2:1;
+  const prev=DEX[S.word.w]||0, isNew=!prev, wasOpen=mythOpen();
+  DEX[S.word.w]=Math.max(prev,stars); saveDex();
+  S.results.push({w:S.word,stars,isNew});
+  sfx.win(); updateDexCount();
+  const a=$('pArtBox').querySelector('.art'); a&&a.classList.remove('sil');
+  $('dTitle').textContent=stars===3?'全部打對，太厲害了！':'打完了！';
+  $('dArt').innerHTML=artHTML(S.word,false);
+  $('dArt').classList.remove('pop'); void $('dArt').offsetWidth; $('dArt').classList.add('pop');
+  $('dWord').textContent=S.word.w;
+  $('dZy').textContent=S.word.syl.map(zyStr).join('　');
+  $('dStars').innerHTML=starsHTML(stars,'ov-stars');
+  const catN=CATS.find(c=>c.k===S.word.cat).n;
+  $('dBadge').textContent=isNew?`收進「${catN}」圖鑑！`:(stars>prev?'圖鑑星星更新！':`已經在「${catN}」圖鑑裡`);
+  $('dFact').textContent=S.word.fact;
+  $('nextBtn').textContent=S.ri<S.round.length-1?'下一隻':'看這一輪的結果';
+  const unlocked=!wasOpen&&mythOpen();
+  if(unlocked){ $('dBadge').textContent='其他圖鑑全部三顆星！神獸圖鑑打開了！'; $('dBadge').classList.add('gold'); } else $('dBadge').classList.remove('gold');
+  setTimeout(()=>{ $('doneOv').hidden=false; sayParts(unlocked?[`打完了！${S.word.w}`,'哇！你把其他圖鑑全部拿到三顆星，神獸圖鑑打開了！']:[`打完了！${S.word.w}`,S.word.fact],500); },700);
+}
+function afterDone(){
+  $('doneOv').hidden=true;
+  if(S.ri<S.round.length-1) startWord(S.ri+1); else showSummary();
+}
+function showSummary(){
+  stopSpeech(); clearMoles();
+  $('sScore').textContent=S.score;
+  $('sList').innerHTML=S.results.map(r=>`<div class="srow"><div class="artbox">${artHTML(r.w,false)}</div><span class="nm">${r.w.w}</span>${r.isNew?'<span class="new">新收集</span>':''}${starsHTML(r.stars)}</div>`).join('');
+  const tot=S.errs.i+S.errs.m+S.errs.f+S.errs.t, max=Math.max(1,...Object.values(S.errs));
+  let html='<h3>這一輪哪裡比較常錯</h3>';
+  if(!tot) html+='<div class="advice">這一輪完全沒有打錯，可以試試更快的「閃電地鼠」！</div>';
+  else{
+    html+=[['i','聲母','--ri'],['m','介音','--rm'],['f','韻母','--rf'],['t','聲調','--rt']].map(([k,n,v])=>
+      `<div class="arow" style="--rc:var(${v})"><span>${n}</span><span class="bar"><i style="width:${S.errs[k]/max*100}%"></i></span><span class="n">${S.errs[k]}</span></div>`).join('');
+    const top=Object.entries(S.confs).sort((a,b)=>b[1]-a[1]).slice(0,5);
+    if(top.length) html+=`<div class="confs">${top.map(([k,n])=>`<span>${k}${n>1?` ×${n}`:''}</span>`).join('')}</div>`;
+    const worst=Object.entries(S.errs).sort((a,b)=>b[1]-a[1])[0][0];
+    const ADV={
+      i:'聲母比較常錯：念字時把開頭拖長，例如「ㄏ——ㄨㄚ」，先抓第一個音。',
+      m:'介音比較常錯：聽聽看字的中間有沒有「ㄧ、ㄨ、ㄩ」，像「花」是ㄏ、ㄨㄚ，中間有ㄨ。',
+      f:'韻母比較常錯：把字的尾巴拉長聽，特別注意ㄣ和ㄥ、ㄢ和ㄤ。',
+      t:'聲調比較常錯：先單獨念這個字，再按「四聲比對」從一聲念到四聲，找出一樣的那個。二聲往上揚，三聲先往下再上來。'};
+    html+=`<div class="advice">${ADV[worst]}</div>`;
+  }
+  $('sAna').innerHTML=html;
+  $('sumOv').hidden=false;
+  say(`這一輪得到${S.score}分，拿到${S.results.reduce((a,r)=>a+r.stars,0)}顆星星`);
+}
+
+/* ================= 四聲比對 ================= */
+function openFour(auto){
+  if(!S.word) return;
+  const row=FOUR[S.word.syl[S.ci].b.join('')]||[null,null,null,null];
+  const p=$('fourPanel'); p.hidden=false; $('fourBtn').classList.add('on');
+  p.innerHTML=`<span class="fl">點一個聲調聽聽看，和單獨念的「${curChar()}」一樣的就是答案</span>
+    <div class="frow">${[1,2,3,4].map(t=>`<button class="fbtn" data-ft="${t}" ${row[t-1]?'':'disabled'}><span class="mk">${TONE_SHOW[t]}</span><span class="lb">${TONE_NAME[t]}${row[t-1]?'':'（沒有）'}</span></button>`).join('')}</div>
+    <div class="frow"><button class="soft" id="fourAll">從一聲念到四聲</button><button class="soft" id="fourTgt">念「${curChar()}」</button></div>`;
+  if(auto) playFour();
+}
+function closeFour(){ $('fourPanel').hidden=true; $('fourBtn').classList.remove('on'); }
+function playFour(){
+  const row=FOUR[S.word.syl[S.ci].b.join('')]||[];
+  const items=[1,2,3,4].filter(t=>row[t-1]).map(t=>({t,text:`${TONE_NAME[t]}，${row[t-1]}`}));
+  items.push({t:0,text:`題目是，${curChar()}`});
+  sayParts(items.map(x=>x.text),700,i=>{
+    document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('lit'));
+    if(i>=0&&items[i].t){ const b=document.querySelector(`.fbtn[data-ft="${items[i].t}"]`); b&&b.classList.add('lit'); }
+  });
+}
+
+/* ================= 畫面 ================= */
+function updateScore(bump){
+  $('score').textContent=S.score;
+  $('comboMsg').textContent=S.combo>=2?`連擊 ${S.combo}`:'';
+}
+function render(){
+  if(S.view!=='play'||!S.word) return;
+  const plain=S.diff==='hard';
+  $('vPlay').classList.toggle('plain',plain);
+  $('legend').hidden=plain;
+  $('roundInfo').textContent=`第 ${S.ri+1}／${S.round.length} 隻`;
+  const chs=[...S.word.w];
+  $('wordRow').innerHTML=S.word.syl.map((s,i)=>{
+    const c=S.chars[i], st=c.phase==='done'?'done':i===S.ci?'active':'future', n=s.b.length;
+    let cells=s.b.map((sym,j)=>{
+      const role=roleAt(s.b,j), shown=c.filled[j], want=i===S.ci&&c.phase==='sym'&&j===c.filled.findIndex(x=>!x);
+      return `<span class="slot r-${role}${shown?' ok':''}${want?' want':''}" style="grid-row:${j+1}">${shown?sym:''}</span>`;
+    }).join('');
+    let tcl='tslot', ttxt='';
+    if(c.phase==='done') ttxt=TONE_WRITE[s.t];
+    else if(i===S.ci&&c.phase==='tone') tcl+=' want';
+    cells+=`<span class="${tcl}" style="grid-row:${n}">${ttxt}</span>`;
+    return `<div class="cb ${st}"><span class="han">${chs[i]}</span><div class="zcol" aria-hidden="true">${cells}</div></div>`;
+  }).join('');
+  const c=S.chars[S.ci], ch=chs[S.ci], syl=S.word.syl[S.ci], nj=c.filled.findIndex(x=>!x);
+  const order=[...syl.b.map((x,j)=>ROLE_NAME[roleAt(syl.b,j)]),'聲調'].join(' → ');
+  const nowName=nj<0?'':plain?`第 ${nj+1} 個注音`:ROLE_NAME[roleAt(syl.b,nj)];
+  $('stepMsg').innerHTML=c.phase==='sym'
+    ? (plain?`聽「<b>${ch}</b>」，照順序一個一個打注音，最後打聲調`:`聽「<b>${ch}</b>」，照順序打：${order}`)
+    : c.phase==='tone'?`「<b>${ch}</b>」要念幾聲？不確定就按「四聲比對」`:`「<b>${ch}</b>」完成了！`;
+  $('phaseMsg').innerHTML=c.phase==='sym'?`打「<b>${ch}</b>」的${nowName}`:c.phase==='tone'?`打「<b>${ch}</b>」的聲調`:'好棒！';
+  const sd=S.word.sd===S.ci&&c.phase!=='done';
+  $('sandhiTip').hidden=!sd;
+  if(sd) $('sandhiTip').textContent=`小提醒：兩個三聲的字連在一起念時，前面的字聽起來會像二聲。要判斷「${ch}」的聲調，請按「念這個字」單獨聽它。`;
+  $('pauseBtn').textContent=S.paused?'繼續':'暫停';
+  $('field').classList.toggle('paused',S.paused);
+  $('pauseMsg').hidden=!S.paused;
+}
+function updateDexCount(){ $('dexCount').textContent=`${WORDS.filter(w=>DEX[w.w]).length}/${WORDS.length}`; }
+function refreshThemeChips(){
+  const open=mythOpen(), el=$('themeChips');
+  THEMES.forEach((t,i)=>{
+    const b=el.children[i]; if(!b) return;
+    if(t.k==='myth'){
+      b.disabled=!open;
+      b.querySelector('.n').textContent=open?'神獸':'🔒 神獸';
+      b.querySelector('.s').textContent=open?'朱雀、青龍、白虎…共 '+WORDS.filter(w=>w.cat==='myth').length+' 種':'其他圖鑑每種都三顆星才開放，還差 '+mythLeft()+' 種';
+    }
+    if(t.k==='all'){
+      const n=WORDS.filter(w=>w.cat!=='myth'||open).length;
+      b.querySelector('.s').textContent=(open?CATS.length:CATS.length-1)+' 類一起，共 '+n+' 種';
+    }
+    b.setAttribute('aria-pressed',String(S.theme===t.k));
+  });
+}
+function renderHome(){
+  refreshThemeChips();
+  const open=mythOpen();
+  $('homeProg').innerHTML=CATS.map(c=>{
+    const ws=WORDS.filter(w=>w.cat===c.k), got=ws.filter(w=>DEX[w.w]).length;
+    if(c.k==='myth'&&!open) return `<div class="prow"><span>🔒 ${c.n}</span><span class="bar"><i style="width:0%"></i></span><span class="c">未開放</span></div>`;
+    return `<div class="prow"><span>${c.n}</span><span class="bar"><i style="width:${starSum(ws)/(ws.length*3)*100}%"></i></span><span class="c">★${starSum(ws)}/${ws.length*3}</span></div>`;
+  }).join('');
+}
+function renderDex(){
+  $('dexTotal').textContent=`已收集 ${WORDS.filter(w=>DEX[w.w]).length}／${WORDS.length} 種 · 星星 ★${starSum(WORDS)}／${WORDS.length*3}`;
+  $('dexTabs').innerHTML=CATS.map(c=>{
+    const ws=WORDS.filter(w=>w.cat===c.k), got=ws.filter(w=>DEX[w.w]).length;
+    const lk=c.k==='myth'&&!mythOpen();
+    return `<button class="tab${c.k==='myth'?' mythtab':''}" role="tab" data-tab="${c.k}" aria-selected="${S.dexTab===c.k}">${lk?'🔒 ':''}${c.n}<small>${got}/${ws.length}</small></button>`;
+  }).join('');
+  const lockedMyth=S.dexTab==='myth'&&!mythOpen();
+  $('dexMsg').hidden=!lockedMyth&&S.dexTab!=='myth';
+  $('dexMsg').className='lockmsg'+(lockedMyth?'':' open');
+  $('dexMsg').textContent=lockedMyth?`神獸躲起來了！把其他圖鑑全部收集，而且每一種都拿到三顆星，神獸才會出現。還差 ${mythLeft()} 種還沒拿到三顆星（星星 ${starSum(baseWords())}／${baseWords().length*3}）。`:'你把所有圖鑑都拿到三顆星，神獸現身了！打出牠們的名字，把神獸收進圖鑑吧。';
+  $('dexGrid').innerHTML=WORDS.filter(w=>w.cat===S.dexTab).map(w=>{
+    const st=DEX[w.w];
+    return st
+      ? `<button class="card" data-card="${w.w}"><div class="artbox">${artHTML(w,false)}</div><span class="nm">${w.w}</span><span class="zz">${w.syl.map(zyStr).join(' ')}</span>${starsHTML(st)}<span class="ft">${w.fact}</span></button>`
+      : `<button class="card lock" data-card="${w.w}"><div class="artbox">${artHTML(w,true)}</div><span class="nm">${'？'.repeat([...w.w].length)}</span><span class="ft">還沒收集到，打出名字就能收進來。</span></button>`;
+  }).join('');
+}
+function showView(v){
+  S.view=v;
+  $('vHome').hidden=v!=='home'; $('vPlay').hidden=v!=='play'; $('vDex').hidden=v!=='dex';
+  $('scoreBox').hidden=v!=='play';
+  if(v!=='play'){ stopSpeech(); clearMoles(); $('roundInfo').textContent=''; }
+  if(v==='home') renderHome();
+  if(v==='dex') renderDex();
+  if(v==='play') render();
+  $('main').scrollTop=0;
+}
+
+/* ================= 選單 ================= */
+function chipGroup(el,items,key,onPick){
+  el.innerHTML='';
+  items.forEach(it=>{
+    const b=document.createElement('button'); b.className='chip'; b.type='button';
+    b.innerHTML=`<span class="n">${it.n}</span><span class="s">${it.s}</span>`;
+    b.setAttribute('aria-pressed',String(S[key]===it.k));
+    b.onclick=()=>{ S[key]=it.k; [...el.children].forEach((c,i)=>c.setAttribute('aria-pressed',String(items[i].k===S[key]))); onPick&&onPick(); };
+    el.appendChild(b);
+  });
+}
+function buildChips(){
+  chipGroup($('themeChips'),THEMES,'theme');
+  chipGroup($('diffChips'),DIFFS,'diff');
+  chipGroup($('rateChips'),RATES,'rate',()=>{ initAudio(); say('三葉蟲'); });
+  chipGroup($('repeatChips'),REPEATS,'repeat');
+}
+buildField(); buildChips();
+updateDexCount(); renderHome();
+
+/* ================= 備份／搬移進度 ================= */
+const b64e=str=>{ const b=new TextEncoder().encode(str); let t=''; b.forEach(x=>t+=String.fromCharCode(x)); return btoa(t); };
+const b64d=str=>new TextDecoder().decode(Uint8Array.from(atob(str),c=>c.charCodeAt(0)));
+function queueKeys(){ const ks=[]; try{ for(let i=0;i<localStorage.length;i++){ const k=localStorage.key(i); if(k&&k.startsWith('zymole-queue-')) ks.push(k); } }catch(e){} return ks; }
+function makeCode(){
+  const dex={}; WORDS.forEach(w=>{ if(DEX[w.w]) dex[w.w]=DEX[w.w]; });
+  const d={v:1,dex,settings:{theme:S.theme,diff:S.diff,rate:S.rate,repeat:S.repeat,voice:S.voice,pack:S.pack},review:S.untilReview,queues:{}};
+  queueKeys().forEach(k=>{ const q=store.get(k,null); if(q) d.queues[k]=q; });
+  return 'ZYM1-'+b64e(JSON.stringify(d));
+}
+function importCode(txt){
+  const m=String(txt).replace(/\s+/g,'').match(/ZYM1-([A-Za-z0-9+/=]+)/);
+  if(!m) throw new Error('bad');
+  const d=JSON.parse(b64d(m[1]));
+  if(!d||typeof d.dex!=='object') throw new Error('bad');
+  const names=new Set(WORDS.map(w=>w.w)); let added=0, up=0;
+  Object.entries(d.dex).forEach(([k,v])=>{
+    if(!names.has(k)) return;
+    const n=Math.max(0,Math.min(3,v|0)), old=DEX[k]||0;
+    if(n>old){ old?up++:added++; DEX[k]=n; }
+  });
+  saveDex();
+  const st=d.settings||{};
+  if(THEMES.some(t=>t.k===st.theme)) S.theme=st.theme;
+  if(DIFFS.some(t=>t.k===st.diff)) S.diff=st.diff;
+  if(RATES.some(t=>t.k===st.rate)) S.rate=st.rate;
+  if(REPEATS.some(t=>t.k===st.repeat)) S.repeat=st.repeat;
+  if(S.theme==='myth'&&!mythOpen()) S.theme='insect';
+  store.set('zymole-settings',{theme:S.theme,diff:S.diff,rate:S.rate,repeat:S.repeat,voice:S.voice,pack:S.pack});
+  if(d.queues&&typeof d.queues==='object') Object.entries(d.queues).forEach(([k,q])=>{
+    if(k.startsWith('zymole-queue-')&&q&&Array.isArray(q.q)&&Array.isArray(q.seen)) store.set(k,q);
+  });
+  if(typeof d.review==='number'&&d.review>=-1&&d.review<=3){ S.untilReview=d.review; store.set('zymole-review',d.review); }
+  return {added,up};
+}
+function bakMsg(t,err){ $('bakMsg').textContent=t; $('bakMsg').classList.toggle('err',!!err); }
+function openBackup(){
+  const got=WORDS.filter(w=>DEX[w.w]).length;
+  $('bakSum').textContent=`這台裝置已收集 ${got}／${WORDS.length} 種，星星 ★${starSum(WORDS)}／${WORDS.length*3}。`;
+  $('bakOut').value=makeCode(); $('bakIn').value=''; bakMsg('');
+  $('bakOv').hidden=false;
+}
+$('bakBtn').onclick=openBackup;
+$('bakClose').onclick=()=>{ $('bakOv').hidden=true; };
+$('bakOut').onfocus=()=>$('bakOut').select();
+$('bakCopy').onclick=async()=>{
+  const ta=$('bakOut'); let ok=false;
+  try{ await navigator.clipboard.writeText(ta.value); ok=true; }catch(e){}
+  if(!ok){ try{ ta.focus(); ta.select(); ta.setSelectionRange(0,ta.value.length); ok=document.execCommand('copy'); }catch(e){} }
+  bakMsg(ok?'已複製！把它貼到 LINE 或備忘錄傳到新裝置。':'沒辦法自動複製，請長按上面的文字，選「全選」再「拷貝」。',!ok);
+};
+$('bakImport').onclick=()=>{
+  const txt=$('bakIn').value.trim();
+  if(!txt){ bakMsg('請先把進度碼貼進框框裡。',true); return; }
+  try{
+    const r=importCode(txt);
+    buildChips(); renderHome(); updateDexCount();
+    $('bakOut').value=makeCode();
+    const got=WORDS.filter(w=>DEX[w.w]).length;
+    $('bakSum').textContent=`這台裝置已收集 ${got}／${WORDS.length} 種，星星 ★${starSum(WORDS)}／${WORDS.length*3}。`;
+    bakMsg(r.added||r.up?`匯入完成！新增 ${r.added} 種，另外 ${r.up} 種的星星變多了。`:'匯入完成！這台裝置本來就已經有這些進度了。');
+  }catch(e){ bakMsg('這串進度碼讀不出來，請確認有整串完整貼上（開頭是 ZYM1-）。',true); }
+};
+$('bakOv').addEventListener('click',e=>{ if(e.target===$('bakOv')) $('bakOv').hidden=true; });
+
+/* ================= 事件 ================= */
+$('field').addEventListener('click',e=>{ const b=e.target.closest('[data-h]'); if(b) whack(+b.dataset.h,e); });
+$('fourPanel').addEventListener('click',e=>{
+  if(!S.word) return;
+  const row=FOUR[S.word.syl[S.ci].b.join('')]||[];
+  const f=e.target.closest('[data-ft]');
+  if(f&&row[+f.dataset.ft-1]){ document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('lit')); f.classList.add('lit'); say(row[+f.dataset.ft-1]); }
+  if(e.target.closest('#fourAll')) playFour();
+  if(e.target.closest('#fourTgt')) say(curChar());
+});
+$('replay').onclick=()=>{ initAudio(); speakWord(); };
+$('charsBtn').onclick=()=>{ initAudio(); speakChars(); };
+$('sayCharBtn').onclick=()=>{ initAudio(); say(curChar()); };
+$('fourBtn').onclick=()=>{ initAudio(); if($('fourPanel').hidden) openFour(true); else closeFour(); };
+$('hintBtn').onclick=()=>{ initAudio(); hint(); };
+$('pauseBtn').onclick=()=>{ S.paused=!S.paused; if(S.paused){ clearMoles(); stopSpeech(); } else { S.freeze=performance.now()+600; } render(); };
+$('startBtn').onclick=startRound;
+$('againBtn').onclick=()=>{ $('sumOv').hidden=true; startRound(); };
+$('nextBtn').onclick=afterDone;
+$('homeBtn').onclick=()=>{ $('doneOv').hidden=true; $('sumOv').hidden=true; showView('home'); };
+$('sumHomeBtn').onclick=()=>{ $('sumOv').hidden=true; showView('home'); };
+const openDex=()=>{ $('doneOv').hidden=true; $('sumOv').hidden=true; if(S.word) S.dexTab=S.word.cat; else if(S.theme!=='all') S.dexTab=S.theme; showView('dex'); };
+$('dexBtn').onclick=openDex; $('openDexBtn').onclick=openDex; $('sumDexBtn').onclick=openDex;
+$('dexTabs').addEventListener('click',e=>{ const b=e.target.closest('[data-tab]'); if(b){ S.dexTab=b.dataset.tab; renderDex(); } });
+$('dexGrid').addEventListener('click',e=>{
+  const b=e.target.closest('[data-card]'); if(!b) return; initAudio();
+  const w=WORDS.find(x=>x.w===b.dataset.card);
+  if(DEX[w.w]) sayParts([w.w,w.fact],500); else if(w.cat==='myth'&&!mythOpen()) say('神獸躲起來了，先把其他圖鑑收集完吧'); else say('還沒收集到，去打打看吧');
+});
+$('muteBtn').onclick=()=>{ S.sound=!S.sound; $('muteBtn').setAttribute('aria-pressed',String(!S.sound)); };
+document.addEventListener('visibilitychange',()=>{ if(document.hidden&&S.view==='play'&&!S.paused){ S.paused=true; clearMoles(); stopSpeech(); render(); } });
+})();
+</script>
+</body>
+</html>
+
+</body></html>
