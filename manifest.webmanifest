@@ -1,0 +1,11 @@
+{
+  "name": "注音打地鼠",
+  "short_name": "注音打地鼠",
+  "start_url": "./注音打地鼠_語音修正版.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#fff7fb",
+  "theme_color": "#7b5ea7",
+  "icons": [{ "src": "icon-180.png", "sizes": "180x180", "type": "image/png" }]
+}

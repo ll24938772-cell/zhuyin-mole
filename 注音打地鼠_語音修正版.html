@@ -5,6 +5,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>注音打地鼠</title>
+<!-- PWA：加到 iPad 主畫面後可全螢幕、可離線 -->
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="注音打地鼠">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="theme-color" content="#7b5ea7">
 <style>
 :root{
   color-scheme: light;
@@ -302,6 +309,9 @@ h1{margin:0;font-weight:400;font-size:46px;line-height:1;display:flex;gap:.3em;c
         <div class="sec"><h2>難度</h2><div class="chips" id="diffChips" role="group" aria-label="難度"></div></div>
         <div class="sec"><h2>念名字的速度（點一下可以試聽）</h2><div class="chips" id="rateChips" role="group" aria-label="念名字的速度"></div></div>
         <div class="sec"><h2>語音包（真人語音，點一下可以試聽）</h2><div class="chips" id="packChips" role="group" aria-label="語音包"><span class="note">正在找語音包…</span></div></div>
+        <div class="sec" id="offlineSec" hidden><h2>離線使用（iPad 沒網路也能玩）</h2>
+          <div class="frow"><button class="soft" id="offlineBtn">下載目前語音包到這台裝置</button></div>
+          <div class="note" id="offlineStatus"></div></div>
         <div class="sec"><h2>瀏覽器語音（語音包沒有的句子才會用到）</h2><div class="chips" id="voiceChips" role="group" aria-label="語音"></div><div class="note" id="voiceStatus">正在找語音…</div></div>
         <div class="sec"><h2>重複聽</h2><div class="chips" id="repeatChips" role="group" aria-label="重複聽"></div></div>
 
@@ -920,7 +930,7 @@ function loadScript(src,ok,fail){ const s=document.createElement('script'); s.sr
 function loadPack(id,then){
   const p=PACKS.find(x=>x.id===id); if(!p){ VOICE=null; updateVoiceStatus(); return; }
   stopClip(); window.VOICE_INDEX=null;
-  loadScript(p.index, ()=>{ VOICE=(window.VOICE_INDEX&&window.VOICE_INDEX.files)?window.VOICE_INDEX:null; updateVoiceStatus(); then&&then(); },
+  loadScript(p.index, ()=>{ VOICE=(window.VOICE_INDEX&&window.VOICE_INDEX.files)?window.VOICE_INDEX:null; updateVoiceStatus(); updateOfflineStatus(); then&&then(); },
                       ()=>{ VOICE=null; updateVoiceStatus(); });
 }
 (function(){
@@ -934,6 +944,26 @@ function loadPack(id,then){
                                 ()=>{ VOICE=null; buildPackChips(); updateVoiceStatus(); });
   });
 })();
+/* ===== 離線（PWA）：註冊服務工作者；設定頁的按鈕把整包語音抓進裝置快取 ===== */
+let SW=null;
+if('serviceWorker' in navigator && /^https?:/.test(location.protocol)){
+  navigator.serviceWorker.register('sw.js').then(reg=>{ SW=reg; $('offlineSec').hidden=false; updateOfflineStatus(); }).catch(()=>{});
+  navigator.serviceWorker.addEventListener('message',e=>{
+    const d=e.data||{}, st=$('offlineStatus'); if(!st) return;
+    if(d.type==='cache-progress') st.textContent=`下載中… ${d.done}/${d.total}`+(d.fail?`（${d.fail} 段失敗）`:'');
+    if(d.type==='cache-done'){ st.textContent=d.fail?`完成，但有 ${d.fail} 段沒抓到，再按一次會只補那些`:`✅ 這一包 ${d.total} 段都存在裝置裡了，沒網路也能玩`; $('offlineBtn').disabled=false; }
+    if(d.type==='cache-count'){ const n=VOICE?VOICE.count:0; st.textContent = n&&d.count>=n ? `✅ 目前語音包已完整存在裝置裡（${d.count} 段）` : `目前存了 ${d.count}/${n} 段。按上面的按鈕一次下載整包（約 16 MB）`; }
+  });
+}
+function swPost(msg){ if(navigator.serviceWorker&&navigator.serviceWorker.controller) navigator.serviceWorker.controller.postMessage(msg); }
+function updateOfflineStatus(){ if(!SW||!VOICE){ const st=$('offlineStatus'); if(st) st.textContent=VOICE?'':'先要有語音包才有東西可以離線'; return; } swPost({type:'cache-count',base:VOICE.base}); }
+document.addEventListener('click',e=>{
+  if(!e.target.closest('#offlineBtn')) return;
+  if(!VOICE){ $('offlineStatus').textContent='沒有語音包可以下載'; return; }
+  if(!navigator.serviceWorker||!navigator.serviceWorker.controller){ $('offlineStatus').textContent='離線功能還沒準備好，重新整理一次再試'; return; }
+  $('offlineBtn').disabled=true; $('offlineStatus').textContent='開始下載…';
+  swPost({type:'cache-pack',base:VOICE.base,files:Object.values(VOICE.files)});
+});
 function buildPackChips(){
   const el=$('packChips'); if(!el) return;
   if(!PACKS.length){ el.innerHTML='<span class="note">'+(VOICE?'只有一個語音包（舊格式）':'沒有語音包——HTML 旁邊沒有 voice 資料夾，先用瀏覽器語音')+'</span>'; return; }
